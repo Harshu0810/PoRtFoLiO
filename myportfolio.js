@@ -392,7 +392,18 @@ const elementToggleFunc = el => el.classList.toggle('active');
 
 const sidebar    = document.querySelector('[data-sidebar]');
 const sidebarBtn = document.querySelector('[data-sidebar-btn]');
-if (sidebarBtn) sidebarBtn.addEventListener('click', () => elementToggleFunc(sidebar));
+if (sidebarBtn) sidebarBtn.addEventListener('click', () => {
+  elementToggleFunc(sidebar);
+  // Re-trigger staggered entrance animations each time sidebar is opened
+  if (sidebar.classList.contains('active')) {
+    const replayEls = sidebar.querySelectorAll('.contact-item, .social-item, .sidebar-info_more .separator');
+    replayEls.forEach(el => {
+      el.style.animation = 'none';
+      el.offsetHeight;          // force reflow — restarts animation
+      el.style.animation = '';  // re-arm the CSS @keyframes
+    });
+  }
+});
 
 /* modal */
 const testimonialsItem = document.querySelectorAll('[data-testimonials-item]');

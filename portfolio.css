@@ -1174,3 +1174,215 @@ textarea.form-input::-webkit-resizer { display: none; }
   .pf-featured-body { padding: 20px 18px; }
   .pf-grid { grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 14px; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   SIDEBAR — ENTRANCE & COMPONENT ANIMATIONS
+   Each element animates in independently with staggered delays.
+   Animations fire once on page load via @keyframes + animation-fill-mode:both
+════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Panel slide-in from left ── */
+@keyframes sidebarSlideIn {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.sidebar {
+  animation: sidebarSlideIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.15s both;
+}
+
+/* ── 2. Avatar: scale-up with a subtle overshoot bounce ── */
+@keyframes avatarEntrance {
+  0%   { opacity: 0; transform: scale(0.6) translateY(10px); }
+  65%  { transform: scale(1.06) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.avatar-box {
+  /* override the float-only animation → sequence: entrance THEN float */
+  animation:
+    avatarEntrance 0.7s cubic-bezier(0.22,1,0.36,1) 0.35s both,
+    avatarFloat    4s  ease-in-out 1.1s infinite;
+}
+
+/* Animated gold ring pulse around avatar */
+@keyframes avatarRingPulse {
+  0%,100% { box-shadow: 0 0 0 0   hsla(45,100%,72%,0.0),  inset 0 0 0 1.5px hsla(45,100%,72%,0.25); }
+  50%     { box-shadow: 0 0 0 7px hsla(45,100%,72%,0.0),  inset 0 0 0 1.5px hsla(45,100%,72%,0.5); }
+}
+.avatar-box::after {
+  animation: avatarRingPulse 3s ease-in-out 1.2s infinite;
+}
+
+/* ── 3. Name: slide up + fade ── */
+@keyframes nameReveal {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.info-content .name {
+  animation: nameReveal 0.6s cubic-bezier(0.22,1,0.36,1) 0.55s both;
+  display: inline-block; /* needed so transform works on inline h1 */
+}
+
+/* ── 4. Title badge: fade + scale up slightly ── */
+@keyframes badgeReveal {
+  from { opacity: 0; transform: scale(0.82) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.info-content .title {
+  animation: badgeReveal 0.5s cubic-bezier(0.22,1,0.36,1) 0.72s both;
+}
+
+/* ── 5. Show-contacts button: drop in from top-right ── */
+@keyframes btnDrop {
+  from { opacity: 0; transform: translate(8px,-8px) scale(0.85); }
+  to   { opacity: 1; transform: translate(0,0) scale(1); }
+}
+.info_more-btn {
+  animation: btnDrop 0.45s cubic-bezier(0.22,1,0.36,1) 0.85s both;
+}
+
+/* ── 6. Separator lines: width grows from 0 ── */
+@keyframes separatorGrow {
+  from { width: 0; opacity: 0; }
+  to   { width: 100%; opacity: 1; }
+}
+/* We can't animate width on a block element directly without overflow:hidden trick,
+   so we use a pseudo-element overlay approach instead */
+.sidebar-info_more .separator {
+  position: relative;
+  overflow: hidden;
+  background: transparent; /* hide the base */
+}
+.sidebar-info_more .separator::after {
+  content: "";
+  position: absolute; top: 0; left: 0;
+  height: 100%; width: 100%;
+  background: var(--jet);
+  animation: separatorGrow 0.6s ease-out both;
+}
+/* Stagger the two separators */
+.sidebar-info_more .separator:nth-of-type(1)::after { animation-delay: 0.1s; }
+.sidebar-info_more .separator:nth-of-type(2)::after { animation-delay: 0.55s; }
+
+/* Only animate separators when sidebar is expanded */
+.sidebar:not(.active) .sidebar-info_more .separator::after { animation: none; width: 100%; background: var(--jet); }
+
+/* ── 7. Contact items: slide in from left, staggered ── */
+@keyframes contactSlideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.contact-item {
+  animation: contactSlideIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  opacity: 0; /* start hidden; animation fills forward */
+}
+/* Trigger animation only once sidebar is opened to avoid re-fire issues.
+   We use the parent .sidebar.active to gate via CSS alone. */
+.sidebar.active .contact-item:nth-child(1) { animation-delay: 0.08s; }
+.sidebar.active .contact-item:nth-child(2) { animation-delay: 0.16s; }
+.sidebar.active .contact-item:nth-child(3) { animation-delay: 0.24s; }
+.sidebar.active .contact-item:nth-child(4) { animation-delay: 0.32s; }
+
+/* On desktop where sidebar is always open (≥1250px), fire immediately */
+@media (min-width: 1250px) {
+  .contact-item:nth-child(1) { animation-delay: 0.7s; }
+  .contact-item:nth-child(2) { animation-delay: 0.8s; }
+  .contact-item:nth-child(3) { animation-delay: 0.9s; }
+  .contact-item:nth-child(4) { animation-delay: 1.0s; }
+}
+
+/* ── 8. Icon-boxes: spin + scale on hover ── */
+.icon-box {
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.35s ease,
+              background  0.25s ease;
+}
+.icon-box:hover,
+.contact-item:hover .icon-box {
+  transform: rotate(-8deg) scale(1.12);
+  box-shadow: 0 6px 20px hsla(45,100%,72%,0.22);
+  background: var(--bg-gradient-yellow-1);
+}
+/* Icon inside spins the other way for a double-rotation feel */
+.icon-box ion-icon {
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), color 0.25s;
+}
+.contact-item:hover .icon-box ion-icon {
+  transform: rotate(10deg) scale(1.1);
+  color: var(--orange-yellow-crayola);
+}
+
+/* Contact text highlight on row hover */
+.contact-item {
+  border-radius: 10px;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  transition: background 0.25s ease;
+}
+.contact-item:hover { background: hsla(45,100%,72%,0.05); }
+.contact-item:hover .contact-link,
+.contact-item:hover time,
+.contact-item:hover address { color: var(--white-2); }
+
+/* ── 9. Social icons: pop in with bounce stagger ── */
+@keyframes socialPop {
+  0%   { opacity: 0; transform: scale(0.4) translateY(10px); }
+  65%  { transform: scale(1.18) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.social-item {
+  animation: socialPop 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.sidebar.active .social-item:nth-child(1) { animation-delay: 0.42s; }
+.sidebar.active .social-item:nth-child(2) { animation-delay: 0.52s; }
+.sidebar.active .social-item:nth-child(3) { animation-delay: 0.62s; }
+
+@media (min-width: 1250px) {
+  .social-item:nth-child(1) { animation-delay: 1.1s; }
+  .social-item:nth-child(2) { animation-delay: 1.2s; }
+  .social-item:nth-child(3) { animation-delay: 1.3s; }
+}
+
+/* Social hover: lift + glow + spin icon */
+.social-item .social-link {
+  position: relative;
+  padding: 6px; border-radius: 50%;
+  transition: color 0.25s, transform 0.3s cubic-bezier(0.22,1,0.36,1),
+              background 0.25s, box-shadow 0.3s !important;
+}
+.social-item .social-link:hover {
+  color: var(--smoky-black) !important;
+  background: var(--orange-yellow-crayola);
+  transform: translateY(-5px) scale(1.2) !important;
+  box-shadow: 0 8px 20px hsla(45,100%,72%,0.4);
+}
+/* The icon itself does a micro-spin on hover */
+.social-item .social-link ion-icon {
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.social-item .social-link:hover ion-icon { transform: rotate(12deg); }
+
+/* ── 10. Sidebar shimmer streak on load ── */
+@keyframes sidebarShimmer {
+  0%   { left: -80%; opacity: 0; }
+  15%  { opacity: 1; }
+  100% { left: 120%; opacity: 0; }
+}
+.sidebar::after {
+  content: "";
+  position: absolute; top: 0; left: -80%;
+  width: 55%; height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsla(255,255%,100%,0.04),
+    hsla(45,100%,72%,0.04),
+    transparent
+  );
+  transform: skewX(-12deg);
+  border-radius: 20px;
+  pointer-events: none;
+  animation: sidebarShimmer 1.6s ease-out 0.4s both;
+  z-index: 2;
+}
+
