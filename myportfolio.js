@@ -6,16 +6,58 @@
 
 
 /* ══════════════════════════════════════════════════════════════
-   PRELOADER  — FIX: correct id ('preloader') + class ('done')
+   PRELOADER — HG monogram + G-arc progress ring
 ══════════════════════════════════════════════════════════════ */
+(function () {
+  const loader = document.getElementById('preloader');
+  if (!loader) return;
+
+  // ── Circumference for r=52 circle: 2π×52 ≈ 326.73 ──
+  const C = 2 * Math.PI * 52;
+
+  // Inject rich markup (replaces the plain "HG" + bar)
+  loader.innerHTML = `
+    <div class="pl-bg-grid"></div>
+
+    <div class="pl-scene">
+      <!-- Circular arc ring (SVG) -->
+      <svg class="pl-ring-svg" viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <linearGradient id="plGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="hsl(45,100%,78%)"/>
+            <stop offset="100%" stop-color="hsl(35,100%,60%)"/>
+          </linearGradient>
+        </defs>
+        <!-- Track -->
+        <circle class="pl-ring-track" cx="60" cy="60" r="52"/>
+        <!-- Fill arc — animated via CSS stroke-dashoffset -->
+        <circle class="pl-ring-fill" cx="60" cy="60" r="52"
+                stroke-dasharray="${C.toFixed(2)}"
+                stroke-dashoffset="${C.toFixed(2)}"/>
+        <!-- Leading glow dot -->
+        <circle class="pl-ring-dot" cx="60" cy="8" r="3.5"/>
+      </svg>
+
+      <!-- HG monogram centred inside the ring -->
+      <div class="pl-monogram">
+        <span class="pl-h">H</span><span class="pl-g">G</span>
+      </div>
+    </div>
+
+    <!-- Name + subtitle below ring -->
+    <div class="pl-name">Harshit Goyal</div>
+    <div class="pl-sub">Data Science &nbsp;·&nbsp; ML &nbsp;·&nbsp; AI</div>
+  `;
+})();
+
 function dismissLoader() {
-  const loader = document.getElementById('preloader');   // was 'loaderScreen'
+  const loader = document.getElementById('preloader');
   if (!loader) return;
   setTimeout(() => {
-    loader.classList.add('done');                        // was 'hidden'
+    loader.classList.add('done');
     splitTextInit();
     initRevealObserver();
-  }, 900);
+  }, 1600);   // slightly longer so ring completes before exit
 }
 if (document.readyState === 'complete') {
   dismissLoader();

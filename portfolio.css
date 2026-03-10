@@ -1024,39 +1024,167 @@ textarea.form-input::-webkit-resizer { display: none; }
    ADVANCED ANIMATIONS
 ════════════════════════════════════════════════════════════════ */
 
-/* ── Preloader ── */
+/* ════════════════════════════════════════════════════════════════
+   PRELOADER — HG monogram + G-arc progress ring
+════════════════════════════════════════════════════════════════ */
+
+/* ── Wrapper ── */
 #preloader {
   position: fixed; inset: 0;
-  background: hsl(220,12%,5%);
+  background: hsl(220,12%,4%);
   z-index: 99999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px;
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+              transform 0.7s cubic-bezier(0.22,1,0.36,1),
+              visibility 0.7s;
+}
+#preloader.done {
+  opacity: 0;
+  transform: scale(1.06);
+  visibility: hidden;
+}
+
+/* ── Subtle dot-grid background ── */
+.pl-bg-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(circle, hsla(45,100%,72%,0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 100%);
+  animation: plGridFade 0.6s ease 0.1s both;
+}
+@keyframes plGridFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Scene: ring + monogram stacked ── */
+.pl-scene {
+  position: relative;
+  width: 160px; height: 160px;
   display: flex; align-items: center; justify-content: center;
-  flex-direction: column;
-  transition: opacity 0.6s ease, visibility 0.6s ease;
 }
-#preloader.done { opacity: 0; visibility: hidden; }
-.preloader-logo {
+
+/* ── SVG ring ── */
+.pl-ring-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg); /* start arc from top */
+  overflow: visible;
+}
+
+/* Track (dim background circle) */
+.pl-ring-track {
+  fill: none;
+  stroke: hsla(225,8%,22%,0.8);
+  stroke-width: 2;
+}
+
+/* Fill arc — the G's arc progress ring */
+.pl-ring-fill {
+  fill: none;
+  stroke: url(#plGrad);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px hsla(45,100%,72%,0.6));
+  animation: plArcFill 1.1s cubic-bezier(0.4,0,0.2,1) 0.3s both;
+}
+@keyframes plArcFill {
+  from { stroke-dashoffset: 326.73; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Leading glowing dot that races the arc */
+.pl-ring-dot {
+  fill: hsl(45,100%,72%);
+  filter: drop-shadow(0 0 4px hsl(45,100%,72%));
+  /* Orbits the full circle in sync with the fill */
+  transform-origin: 60px 60px;
+  animation: plDotOrbit 1.1s cubic-bezier(0.4,0,0.2,1) 0.3s both;
+}
+@keyframes plDotOrbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* SVG gradient definition — injected inline via CSS content trick isn't possible,
+   so we add it as a real SVG defs block in the JS-injected SVG */
+
+/* ── HG monogram ── */
+.pl-monogram {
+  position: relative; z-index: 1;
+  display: flex; align-items: baseline; gap: 1px;
+  user-select: none;
   font-family: var(--ff-heading);
-  font-size: 2.4rem; font-weight: 800;
-  color: var(--orange-yellow-crayola);
-  letter-spacing: 6px;
-  animation: preloaderPulse 1s ease-in-out infinite alternate;
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
 }
-.preloader-bar {
-  width: 160px; height: 2px;
-  background: hsl(225,8%,18%);
-  border-radius: 2px; margin-top: 20px; overflow: hidden;
+
+/* H — slides in from left */
+.pl-h {
+  font-size: 3rem;
+  background: linear-gradient(160deg, hsl(0,0%,98%) 0%, hsl(0,0%,72%) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: plHSlide 0.5s cubic-bezier(0.22,1,0.36,1) 0.2s both;
 }
-.preloader-bar::after {
-  content: ""; display: block; height: 100%;
-  background: var(--text-gradient-yellow);
-  box-shadow: var(--glow-gold);
-  animation: preloaderFill 1.1s ease forwards;
+@keyframes plHSlide {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
-@keyframes preloaderPulse {
-  from { text-shadow: 0 0 10px hsla(45,100%,72%,0.3); }
-  to   { text-shadow: 0 0 30px hsla(45,100%,72%,0.9), 0 0 60px hsla(45,100%,72%,0.3); }
+
+/* G — slides in from right with gold colour */
+.pl-g {
+  font-size: 3rem;
+  background: linear-gradient(160deg, hsl(45,100%,78%) 0%, hsl(35,100%,60%) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: plGSlide 0.5s cubic-bezier(0.22,1,0.36,1) 0.38s both;
 }
-@keyframes preloaderFill { from { width: 0; } to { width: 100%; } }
+@keyframes plGSlide {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Ring outer pulse (fires once at end) ── */
+.pl-scene::after {
+  content: "";
+  position: absolute; inset: -8px;
+  border-radius: 50%;
+  border: 1.5px solid hsla(45,100%,72%,0);
+  animation: plRingPulse 0.6s ease 1.25s both;
+}
+@keyframes plRingPulse {
+  0%   { border-color: hsla(45,100%,72%,0.7); transform: scale(1); }
+  100% { border-color: hsla(45,100%,72%,0);   transform: scale(1.18); }
+}
+
+/* ── Name below ring ── */
+.pl-name {
+  font-family: var(--ff-heading);
+  font-size: 1rem; font-weight: 600;
+  color: var(--white-2);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: plNameFade 0.6s ease 0.55s both;
+}
+@keyframes plNameFade {
+  from { opacity: 0; transform: translateY(8px) letterSpacing(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Subtitle ── */
+.pl-sub {
+  font-size: 10px; font-weight: 400;
+  color: var(--light-gray-70);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: plNameFade 0.6s ease 0.72s both;
+}
+
+/* ── Old simple classes — kept silent so no bleed-through ── */
+.preloader-logo, .preloader-bar { display: none !important; }
 
 /* ── Scroll progress bar ── */
 #scroll-progress {
