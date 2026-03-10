@@ -303,7 +303,7 @@ window._initSkillBars = initSkillBars;
    3D CARD TILT + GLARE
 ══════════════════════════════════════════════════════ */
 function initTilt() {
-  document.querySelectorAll('.project-item > a').forEach(card => {
+  document.querySelectorAll('.project-item > a, .pf-card-inner, .pf-featured').forEach(card => {
     const glare = card.closest('.project-item')?.querySelector('.card-glare');
     card.addEventListener('mousemove', e => {
       const r = card.getBoundingClientRect();
@@ -386,49 +386,182 @@ testimonialsItem.forEach(item => {
 modalCloseBtn.addEventListener('click', toggleModal);
 overlay.addEventListener('click', toggleModal);
 
-/* filter */
-const select      = document.querySelector('[data-select]');
-const selectItems = document.querySelectorAll('[data-select-item]');
-const selectValue = document.querySelector('[data-selecct-value]');
-const filterBtn   = document.querySelectorAll('[data-filter-btn]');
+/* ── PORTFOLIO FILTER + FEATURED CARD ── */
+
+// Project data for featured card rotation
+const projectData = [
+  { idx:0, title:'Crop Yield Prediction &amp; Climate Analysis',
+    desc:'Multi-model ML pipeline on NASA + FAOSTAT data to forecast agricultural yield across Indian states.',
+    tags:['Python','XGBoost','NASA Data','Matplotlib'], badge:'data science',
+    link:'https://colab.research.google.com/drive/11_9lmqIMm7xJDoiCLmp3HZDzxtpFGG5P?usp=sharing',
+    img:'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=900&q=85' },
+  { idx:1, title:'Indian Geographic Population Analysis',
+    desc:'EDA on Census 2011 data with district-level heatmaps, density plots and demographic trend visualizations.',
+    tags:['Pandas','Sweetviz','Matplotlib','Power BI'], badge:'data science',
+    link:'https://colab.research.google.com/drive/1bXTndwO2oWoxVOADHSSX71iyyYo4I0qH?usp=sharing',
+    img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=85' },
+  { idx:2, title:'Universal Drive RAG Chatbot',
+    desc:'GPU-accelerated RAG pipeline with LlamaIndex + Mistral-7B that reads and answers questions from Google Drive documents.',
+    tags:['LlamaIndex','Mistral-7B','HuggingFace','RAG'], badge:'data science',
+    link:'https://github.com/Harshu0810/Q-A-with-files',
+    img:'https://res.cloudinary.com/dvkp0p3wc/image/upload/v1772554081/unnamed_ivslqr.jpg' },
+  { idx:3, title:'Multilingual Legal Judgement Engineering',
+    desc:'NLP pipeline for Indian Supreme Court judgements — multilingual tokenization, NER and dataset curation.',
+    tags:['NLP','HuggingFace','Python','Dataset'], badge:'data science',
+    link:'https://github.com/Harshu0810/indian-kanoon-sci-dataset',
+    img:'https://images.unsplash.com/photo-1589998059171-988d887df646?w=900&q=85' },
+  { idx:4, title:'Automated Personality Classification',
+    desc:'MBTI-based personality predictor using ML + a clean React frontend with detailed personality type breakdown.',
+    tags:['Python','React','scikit-learn','Vercel'], badge:'web development',
+    link:'https://autopersonal.vercel.app/',
+    img:'https://res.cloudinary.com/dvkp0p3wc/image/upload/v1772132141/image_e8c8c9ac_skav80.png' },
+  { idx:5, title:'CGPA–SGPA Calculator &amp; Converter',
+    desc:'Smart GPA calculator supporting RTU Kota grading system — converts between CGPA, SGPA and percentage.',
+    tags:['HTML','CSS','JavaScript','Vercel'], badge:'web development',
+    link:'https://cgpa-scpa-magic-amber.vercel.app/',
+    img:'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=900&q=85' },
+  { idx:6, title:'AlgoViz — Algorithm Performance Analyzer',
+    desc:'Client-side benchmarking tool that visualises sorting & searching algorithm runtime with animated bar charts.',
+    tags:['JavaScript','Canvas','HTML','CSS'], badge:'web development',
+    link:'https://github.com/Harshu0810/Algorithm-analyzer',
+    img:'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=900&q=85' },
+  { idx:7, title:'Weather-Check App',
+    desc:'Real-time weather app using OpenWeatherMap API showing temperature, humidity, wind and 5-day forecast.',
+    tags:['Python','API','Gradio','Colab'], badge:'web development',
+    link:'https://github.com/Harshu0810/Weather-fetch-colab',
+    img:'https://i.postimg.cc/yWvwCj43/weather-APP.jpg' }
+];
+
+let featuredIndex = 0;
+let featAutoTimer = null;
+
+function setFeatured(idx, animate = true) {
+  const p = projectData[idx];
+  const featImg    = document.getElementById('feat-img');
+  const featTitle  = document.getElementById('feat-title');
+  const featDesc   = document.getElementById('feat-desc');
+  const featTags   = document.getElementById('feat-tags');
+  const featBadge  = document.getElementById('feat-badge');
+  const featLink   = document.getElementById('feat-link');
+  const featDots   = document.querySelectorAll('.pf-dot');
+  if (!featImg) return;
+
+  if (animate) {
+    const body = document.querySelector('.pf-featured-body');
+    const imgWrap = document.querySelector('.pf-featured-img-wrap');
+    body.style.opacity = '0'; body.style.transform = 'translateX(10px)';
+    imgWrap.style.opacity = '0.4';
+    setTimeout(() => {
+      updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx);
+      body.style.transition = 'opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1)';
+      imgWrap.style.transition = 'opacity .45s ease';
+      body.style.opacity = '1'; body.style.transform = 'translateX(0)';
+      imgWrap.style.opacity = '1';
+      setTimeout(() => { body.style.transition = ''; imgWrap.style.transition = ''; }, 500);
+    }, 200);
+  } else {
+    updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx);
+  }
+  featuredIndex = idx;
+}
+
+function updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx) {
+  featImg.src    = p.img;
+  featImg.alt    = p.title;
+  featTitle.innerHTML = p.title;
+  featDesc.textContent = p.desc;
+  featTags.innerHTML   = p.tags.map(t => `<span class="pf-tag">${t}</span>`).join('');
+  featBadge.textContent = p.badge === 'data science' ? 'Data Science' : 'Web Dev';
+  featBadge.className   = 'pf-badge ' + (p.badge === 'data science' ? 'pf-badge-ds' : 'pf-badge-web');
+  featLink.href  = p.link;
+  featDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+
+function startFeatAuto() {
+  clearInterval(featAutoTimer);
+  featAutoTimer = setInterval(() => {
+    const visibleCards = Array.from(document.querySelectorAll('.pf-card.active'));
+    if (!visibleCards.length) return;
+    const visibleIndices = visibleCards.map(c => +c.dataset.idx);
+    const currentPos = visibleIndices.indexOf(featuredIndex);
+    const nextIdx = visibleIndices[(currentPos + 1) % visibleIndices.length];
+    setFeatured(nextIdx);
+  }, 4000);
+}
+
+// Card click → update featured
+document.querySelectorAll('.pf-card').forEach(card => {
+  card.addEventListener('mouseenter', () => {
+    clearInterval(featAutoTimer);
+    setFeatured(+card.dataset.idx);
+  });
+  card.addEventListener('mouseleave', () => startFeatAuto());
+});
+
+// Dot click
+document.querySelectorAll('.pf-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    clearInterval(featAutoTimer);
+    setFeatured(+dot.dataset.idx);
+    startFeatAuto();
+  });
+});
+
+// Filter
+const filterBtns  = document.querySelectorAll('[data-filter-btn]');
 const filterItems = document.querySelectorAll('[data-filter-item]');
-select.addEventListener('click', () => elementToggleFunc(select));
+const selectEl    = document.querySelector('[data-select]');
+const selectValue = document.querySelector('[data-selecct-value]');
+const selectItems = document.querySelectorAll('[data-select-item]');
+if (selectEl) selectEl.addEventListener('click', () => elementToggleFunc(selectEl));
 selectItems.forEach(item => {
   item.addEventListener('click', function () {
-    selectValue.innerText = this.innerText;
-    elementToggleFunc(select);
-    filterFunc(this.innerText.toLowerCase());
+    if (selectValue) selectValue.innerText = this.innerText;
+    elementToggleFunc(selectEl);
+    runFilter(this.innerText.toLowerCase());
   });
 });
 
-if (!document.getElementById('filterAnim')) {
-  const s = document.createElement('style'); s.id = 'filterAnim';
-  s.textContent = '@keyframes filterIn{from{opacity:0;transform:scale(0.9) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}';
-  document.head.appendChild(s);
-}
-
-function filterFunc(val) {
-  filterItems.forEach((item, i) => {
-    const show = val === 'all' || val === item.dataset.category;
+function runFilter(val) {
+  let activeCount = 0;
+  const allCards = document.querySelectorAll('.pf-card');
+  allCards.forEach((card, i) => {
+    const show = val === 'all' || card.dataset.category === val;
+    card.classList.toggle('active', show);
     if (show) {
-      item.classList.add('active');
-      item.style.animation = `filterIn 0.4s cubic-bezier(0.22,1,0.36,1) ${i * 0.06}s both`;
-    } else {
-      item.classList.remove('active');
-      item.style.animation = '';
+      card.style.animationDelay = (activeCount * 0.06) + 's';
+      activeCount++;
     }
   });
-  setTimeout(() => { observeReveal(); initTilt(); }, 80);
+  // update dot visibility
+  document.querySelectorAll('.pf-dot').forEach(dot => {
+    const card = document.querySelector(`.pf-card[data-idx="${dot.dataset.idx}"]`);
+    dot.style.display = (card && card.classList.contains('active')) ? '' : 'none';
+  });
+  // jump featured to first visible
+  const firstVisible = document.querySelector('.pf-card.active');
+  if (firstVisible) {
+    setFeatured(+firstVisible.dataset.idx, false);
+    startFeatAuto();
+  }
+  setTimeout(() => { if (window.observeReveal) observeReveal(); if (window.initTilt) initTilt(); }, 80);
 }
 
-let lastBtn = filterBtn[0];
-filterBtn.forEach(btn => {
+let lastFilterBtn = filterBtns[0];
+filterBtns.forEach(btn => {
   btn.addEventListener('click', function () {
-    selectValue.innerText = this.innerText;
-    filterFunc(this.innerText.toLowerCase());
-    lastBtn.classList.remove('active'); this.classList.add('active'); lastBtn = this;
+    const val = (this.dataset.pfFilter || this.innerText).toLowerCase().trim();
+    runFilter(val);
+    lastFilterBtn.classList.remove('active');
+    this.classList.add('active');
+    lastFilterBtn = this;
+    if (selectValue) selectValue.innerText = this.innerText;
   });
 });
+
+// Boot
+setFeatured(0, false);
+startFeatAuto();
 
 /* form */
 const form       = document.querySelector('[data-form]');
