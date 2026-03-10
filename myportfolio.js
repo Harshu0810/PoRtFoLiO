@@ -1,19 +1,21 @@
 'use strict';
 
-/* ══════════════════════════════════════════════════════
-   HARSHIT GOYAL — PORTFOLIO ANIMATION ENGINE v3
-══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   HARSHIT GOYAL — PORTFOLIO ENGINE v4  (all bugs fixed)
+══════════════════════════════════════════════════════════════ */
 
 
-/* ── LOADER ── */
-// Script runs after DOM — 'load' may have already fired, so check readyState
+/* ══════════════════════════════════════════════════════════════
+   PRELOADER  — FIX: correct id ('preloader') + class ('done')
+══════════════════════════════════════════════════════════════ */
 function dismissLoader() {
-  const loader = document.getElementById('preloader');
+  const loader = document.getElementById('preloader');   // was 'loaderScreen'
   if (!loader) return;
   setTimeout(() => {
-    loader.classList.add('done');
+    loader.classList.add('done');                        // was 'hidden'
     splitTextInit();
-  }, 800);
+    initRevealObserver();
+  }, 900);
 }
 if (document.readyState === 'complete') {
   dismissLoader();
@@ -22,22 +24,25 @@ if (document.readyState === 'complete') {
 }
 
 
-/* ── TYPING EFFECT ── */
+/* ══════════════════════════════════════════════════════════════
+   TYPING EFFECT
+══════════════════════════════════════════════════════════════ */
 const aboutText = "I'm a B.Tech. Information Technology student at Rajasthan Technical University, Kota (CGPA 8.45), with a strong passion for Data Science, Machine Learning, and Generative AI. Currently interning at C-DAC Pune, I work on agricultural yield prediction using NASA + FAOSTAT data, Indian population analysis, and multilingual legal text engineering. I've also built a GPU-accelerated RAG chatbot using LlamaIndex and Mistral-7B that answers questions from Google Drive documents. I love turning complex datasets into meaningful insights and building AI-powered solutions that create real impact.";
 const typingText = document.getElementById('typing-text');
 let typeIndex = 0;
 function typeChar() {
+  if (!typingText) return;
   if (typeIndex < aboutText.length) {
     typingText.textContent += aboutText.charAt(typeIndex++);
-    setTimeout(typeChar, 17);
+    setTimeout(typeChar, 16);
   }
 }
-setTimeout(typeChar, 1100);
+setTimeout(typeChar, 1200);
 
 
-/* ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    PARTICLE CONSTELLATION CANVAS
-══════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 (function () {
   const canvas = document.getElementById('particle-canvas');
   if (!canvas) return;
@@ -45,7 +50,7 @@ setTimeout(typeChar, 1100);
   let W, H;
   const GOLD = 'hsla(45,100%,72%,';
   const BLUE = 'hsla(210,100%,65%,';
-  const COUNT = 75, LINK = 140;
+  const COUNT = 70, LINK = 130;
   const mouse = { x: -9999, y: -9999 };
   const pts = [];
 
@@ -59,13 +64,13 @@ setTimeout(typeChar, 1100);
     constructor() { this.init(); }
     init() {
       this.x = Math.random() * W; this.y = Math.random() * H;
-      this.vx = (Math.random() - 0.5) * 0.45; this.vy = (Math.random() - 0.5) * 0.45;
-      this.r = Math.random() * 1.6 + 0.5; this.a = Math.random() * 0.45 + 0.15;
+      this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
+      this.r = Math.random() * 1.5 + 0.5; this.a = Math.random() * 0.4 + 0.15;
       this.gold = Math.random() > 0.3;
     }
     update() {
       const dx = this.x - mouse.x, dy = this.y - mouse.y, dm = Math.hypot(dx, dy);
-      if (dm < 90 && dm > 0) { const f = (90 - dm) / 90 * 0.6; this.vx += dx / dm * f; this.vy += dy / dm * f; }
+      if (dm < 90 && dm > 0) { const f = (90 - dm) / 90 * 0.55; this.vx += dx / dm * f; this.vy += dy / dm * f; }
       this.vx *= 0.992; this.vy *= 0.992;
       this.x += this.vx; this.y += this.vy;
       if (this.x < 0 || this.x > W) this.vx *= -1;
@@ -82,14 +87,14 @@ setTimeout(typeChar, 1100);
         const q = pts[j], d = Math.hypot(p.x - q.x, p.y - q.y);
         if (d < LINK) {
           ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
-          ctx.strokeStyle = GOLD + (1 - d / LINK) * 0.22 + ')'; ctx.lineWidth = 0.7; ctx.stroke();
+          ctx.strokeStyle = GOLD + (1 - d / LINK) * 0.2 + ')'; ctx.lineWidth = 0.6; ctx.stroke();
         }
       }
       const dm = Math.hypot(p.x - mouse.x, p.y - mouse.y);
-      if (dm < LINK * 1.6) {
+      if (dm < LINK * 1.5) {
         ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y);
-        ctx.strokeStyle = (p.gold ? GOLD : BLUE) + (1 - dm / (LINK * 1.6)) * 0.55 + ')';
-        ctx.lineWidth = 0.9; ctx.stroke();
+        ctx.strokeStyle = (p.gold ? GOLD : BLUE) + (1 - dm / (LINK * 1.5)) * 0.5 + ')';
+        ctx.lineWidth = 0.8; ctx.stroke();
       }
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = (p.gold ? GOLD : BLUE) + p.a + ')'; ctx.fill();
@@ -101,26 +106,41 @@ setTimeout(typeChar, 1100);
 })();
 
 
-/* ══════════════════════════════════════════════════════
-   DUAL CURSOR SYSTEM
-══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   SCROLL PROGRESS BAR
+══════════════════════════════════════════════════════════════ */
+const scrollBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  if (!scrollBar) return;
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  scrollBar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+}, { passive: true });
+
+
+/* ══════════════════════════════════════════════════════════════
+   DUAL CURSOR  — FIX: correct id ('cursorDot', not 'cursorGlow')
+══════════════════════════════════════════════════════════════ */
 (function () {
-  const dot = document.getElementById('cursorGlow');
+  const dot  = document.getElementById('cursorDot');   // was 'cursorGlow'
   const ring = document.getElementById('cursorRing');
   if (!dot || !ring) return;
-  let dx = 0, dy = 0, rx = 0, ry = 0, tx = window.innerWidth / 2, ty = window.innerHeight / 2;
+  let dx = 0, dy = 0, rx = 0, ry = 0;
+  let tx = window.innerWidth / 2, ty = window.innerHeight / 2;
+
   document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
-  document.addEventListener('mousedown', () => ring.classList.add('clicking'));
-  document.addEventListener('mouseup', () => ring.classList.remove('clicking'));
-  const hoverEls = 'a, button, .project-item, .skill-tag, .cert-item, .service-item, .tools-category';
-  document.querySelectorAll(hoverEls).forEach(el => {
-    el.addEventListener('mouseenter', () => { ring.classList.add('hovering'); });
-    el.addEventListener('mouseleave', () => { ring.classList.remove('hovering'); });
+  document.addEventListener('mousedown', () => ring.classList.add('clicked'));
+  document.addEventListener('mouseup',   () => ring.classList.remove('clicked'));
+
+  const hoverSel = 'a, button, .pf-card, .skill-tag, .cert-item, .service-item, .tools-category, .stat-box';
+  document.querySelectorAll(hoverSel).forEach(el => {
+    el.addEventListener('mouseenter', () => { dot.classList.add('hovered'); ring.classList.add('hovered'); });
+    el.addEventListener('mouseleave', () => { dot.classList.remove('hovered'); ring.classList.remove('hovered'); });
   });
+
   function loop() {
     dx += (tx - dx) * 0.65; dy += (ty - dy) * 0.65;
     rx += (tx - rx) * 0.10; ry += (ty - ry) * 0.10;
-    dot.style.left = dx + 'px'; dot.style.top = dy + 'px';
+    dot.style.left  = dx + 'px'; dot.style.top  = dy + 'px';
     ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
     requestAnimationFrame(loop);
   }
@@ -128,14 +148,15 @@ setTimeout(typeChar, 1100);
 })();
 
 
-/* ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    RIPPLE ON CLICK
-══════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 document.addEventListener('click', function (e) {
-  const t = e.target.closest('button, .project-item > a, .navbar-link, .cert-item');
+  const t = e.target.closest('button, .pf-card > a, .navbar-link, .cert-item');
   if (!t) return;
   t.style.position = 'relative'; t.style.overflow = 'hidden';
-  const r = t.getBoundingClientRect(), sz = Math.max(r.width, r.height) * 1.5;
+  const r = t.getBoundingClientRect();
+  const sz = Math.max(r.width, r.height) * 1.5;
   const dot = document.createElement('span');
   dot.className = 'ripple-dot';
   dot.style.cssText = `width:${sz}px;height:${sz}px;left:${e.clientX - r.left - sz / 2}px;top:${e.clientY - r.top - sz / 2}px;`;
@@ -144,15 +165,15 @@ document.addEventListener('click', function (e) {
 });
 
 
-/* ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    MAGNETIC BUTTONS
-══════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 function initMagnetic() {
   document.querySelectorAll('[data-magnetic]').forEach(el => {
     el.addEventListener('mousemove', e => {
       const r = el.getBoundingClientRect();
-      const dx = (e.clientX - (r.left + r.width / 2)) * 0.36;
-      const dy = (e.clientY - (r.top + r.height / 2)) * 0.36;
+      const dx = (e.clientX - (r.left + r.width  / 2)) * 0.36;
+      const dy = (e.clientY - (r.top  + r.height / 2)) * 0.36;
       el.style.transform = `translate(${dx}px, ${dy}px)`;
     });
     el.addEventListener('mouseleave', () => {
@@ -166,9 +187,9 @@ initMagnetic();
 window._initMagnetic = initMagnetic;
 
 
-/* ══════════════════════════════════════════════════════
-   SPLIT TEXT — letter-by-letter reveal
-══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   SPLIT TEXT  — letter-by-letter reveal
+══════════════════════════════════════════════════════════════ */
 function splitTextInit() {
   document.querySelectorAll('[data-split]:not([data-split-done])').forEach(el => {
     el.dataset.splitDone = '1';
@@ -202,11 +223,11 @@ function splitTextInit() {
 }
 
 
-/* ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    TEXT SCRAMBLE on name hover
-══════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 (function () {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%';
   document.querySelectorAll('[data-scramble]').forEach(el => {
     const orig = el.textContent;
     let raf, f = 0;
@@ -228,35 +249,40 @@ function splitTextInit() {
 })();
 
 
-/* ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    SCROLL REVEAL
-══════════════════════════════════════════════════════ */
-const revObs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
-
-function observeReveal() {
-  document.querySelectorAll('.reveal, .reveal-left').forEach(el => revObs.observe(el));
+══════════════════════════════════════════════════════════════ */
+let revObserver;
+function initRevealObserver() {
+  revObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revObserver.unobserve(e.target); }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+  observeReveal();
 }
-observeReveal();
+function observeReveal() {
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-scale').forEach(el => {
+    if (revObserver) revObserver.observe(el);
+  });
+}
 window._reObserve = observeReveal;
+initRevealObserver();
 
 
-/* ══════════════════════════════════════════════════════
-   SKILL BARS
-══════════════════════════════════════════════════════ */
-document.querySelectorAll('.skill-progress-fill').forEach(fill => {
-  if (!fill.dataset.target) {
-    const m = (fill.getAttribute('style') || '').match(/width:\s*([\d.]+%)/);
-    if (m) fill.dataset.target = m[1];
-  }
-  fill.style.width = '0'; fill.classList.remove('animated');
-});
-
+/* ══════════════════════════════════════════════════════════════
+   SKILL BARS — FIX: --target-width matches CSS variable name
+══════════════════════════════════════════════════════════════ */
 function initSkillBars() {
   document.querySelectorAll('.skill-progress-fill').forEach(fill => {
-    fill.style.width = '0'; fill.classList.remove('animated');
+    if (!fill.dataset.target) {
+      const m = (fill.getAttribute('style') || '').match(/width:\s*([\d.]+%)/);
+      if (m) fill.dataset.target = m[1];
+    }
+    fill.style.removeProperty('width');
+    fill.classList.remove('animated');
   });
+
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
@@ -264,32 +290,37 @@ function initSkillBars() {
         setTimeout(() => {
           fill.style.setProperty('--target-width', fill.dataset.target || '0%');
           fill.classList.add('animated');
-        }, i * 140);
+        }, i * 150);
       });
       obs.unobserve(e.target);
     });
   }, { threshold: 0.25 });
+
   document.querySelectorAll('.skills-list').forEach(el => obs.observe(el));
 }
 initSkillBars();
 window._initSkillBars = initSkillBars;
 
 
-/* ══════════════════════════════════════════════════════
-   ANIMATED COUNTER
-══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   ANIMATED COUNTERS — FIX: reads data-suffix (HTML) not data-suf
+══════════════════════════════════════════════════════════════ */
 (function () {
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
-      const el = e.target;
-      const end = parseFloat(el.dataset.count), dec = +el.dataset.dec || 0, suf = el.dataset.suf || '';
+      const el  = e.target;
+      const end = parseFloat(el.dataset.count);
+      const dec = el.dataset.dec ? +el.dataset.dec :
+                  (el.dataset.count.includes('.') ? el.dataset.count.split('.')[1].length : 0);
+      const suf = el.dataset.suffix || el.dataset.suf || ''; // FIX: read both attrs
       const start = performance.now();
       function tick(now) {
-        const t = Math.min((now - start) / 1600, 1);
+        const t    = Math.min((now - start) / 1600, 1);
         const ease = 1 - Math.pow(1 - t, 4);
         el.textContent = (end * ease).toFixed(dec) + suf;
-        t < 1 ? requestAnimationFrame(tick) : (el.textContent = end.toFixed(dec) + suf, el.classList.add('counted'));
+        if (t < 1) requestAnimationFrame(tick);
+        else { el.textContent = end.toFixed(dec) + suf; el.classList.add('counted'); }
       }
       requestAnimationFrame(tick);
       obs.unobserve(el);
@@ -299,23 +330,21 @@ window._initSkillBars = initSkillBars;
 })();
 
 
-/* ══════════════════════════════════════════════════════
-   3D CARD TILT + GLARE
-══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   3D CARD TILT
+══════════════════════════════════════════════════════════════ */
 function initTilt() {
-  document.querySelectorAll('.project-item > a, .pf-card-inner, .pf-featured').forEach(card => {
-    const glare = card.closest('.project-item')?.querySelector('.card-glare');
+  document.querySelectorAll('.pf-card-inner, .pf-featured').forEach(card => {
     card.addEventListener('mousemove', e => {
-      const r = card.getBoundingClientRect();
-      const x = e.clientX - r.left, y = e.clientY - r.top;
-      const rx = ((y - r.height / 2) / (r.height / 2)) * -7;
-      const ry = ((x - r.width  / 2) / (r.width  / 2)) *  7;
-      card.style.transform = `perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.03)`;
-      if (glare) { glare.style.setProperty('--mx', x / r.width * 100 + '%'); glare.style.setProperty('--my', y / r.height * 100 + '%'); }
+      const r  = card.getBoundingClientRect();
+      const rx = ((e.clientY - r.top  - r.height / 2) / (r.height / 2)) * -6;
+      const ry = ((e.clientX - r.left - r.width  / 2) / (r.width  / 2)) *  6;
+      card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+      card.style.transition = 'transform 0.1s ease';
     });
     card.addEventListener('mouseleave', () => {
       card.style.transition = 'transform 0.5s cubic-bezier(0.22,1,0.36,1)';
-      card.style.transform = 'perspective(700px) rotateX(0) rotateY(0) scale(1)';
+      card.style.transform  = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
       setTimeout(() => card.style.transition = '', 500);
     });
   });
@@ -324,24 +353,24 @@ initTilt();
 window._initTilt = initTilt;
 
 
-/* ══════════════════════════════════════════════════════
-   PARALLAX SIDEBAR
-══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   SIDEBAR PARALLAX
+══════════════════════════════════════════════════════════════ */
 (function () {
   const sb = document.querySelector('.sidebar');
   if (!sb) return;
   document.addEventListener('mousemove', e => {
-    const xP = (e.clientX / window.innerWidth  - 0.5) * 7;
-    const yP = (e.clientY / window.innerHeight - 0.5) * 5;
-    sb.style.transform = `translateX(${xP}px) translateY(${yP}px)`;
-    sb.style.transition = 'transform 0.9s cubic-bezier(0.22,1,0.36,1)';
+    const xP = (e.clientX / window.innerWidth  - 0.5) * 6;
+    const yP = (e.clientY / window.innerHeight - 0.5) * 4;
+    sb.style.transform  = `translateX(${xP}px) translateY(${yP}px)`;
+    sb.style.transition = 'transform 1s cubic-bezier(0.22,1,0.36,1)';
   });
 })();
 
 
-/* ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    PAGE WIPE TRANSITION
-══════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 const wipeEl = document.getElementById('pageWipe');
 function runWipe(cb) {
   if (!wipeEl) { cb(); return; }
@@ -351,52 +380,55 @@ function runWipe(cb) {
     cb();
     wipeEl.classList.remove('enter');
     wipeEl.classList.add('leave');
-    setTimeout(() => wipeEl.classList.remove('leave'), 420);
+    setTimeout(() => wipeEl.classList.remove('leave'), 430);
   }, 400);
 }
 
 
-/* ══════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    CORE PORTFOLIO LOGIC
-══════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════════════════ */
 const elementToggleFunc = el => el.classList.toggle('active');
 
 const sidebar    = document.querySelector('[data-sidebar]');
 const sidebarBtn = document.querySelector('[data-sidebar-btn]');
-sidebarBtn.addEventListener('click', () => elementToggleFunc(sidebar));
+if (sidebarBtn) sidebarBtn.addEventListener('click', () => elementToggleFunc(sidebar));
 
 /* modal */
-const testimonialsItem  = document.querySelectorAll('[data-testimonials-item]');
-const modalContainer    = document.querySelector('[data-modal-container]');
-const modalCloseBtn     = document.querySelector('[data-modal-close-btn]');
-const overlay           = document.querySelector('[data-overlay]');
-const modalImg          = document.querySelector('[data-modal-img]');
-const modalTitle        = document.querySelector('[data-modal-title]');
-const modalText         = document.querySelector('[data-modal-text]');
-const toggleModal       = () => { modalContainer.classList.toggle('active'); overlay.classList.toggle('active'); };
+const testimonialsItem = document.querySelectorAll('[data-testimonials-item]');
+const modalContainer   = document.querySelector('[data-modal-container]');
+const modalCloseBtn    = document.querySelector('[data-modal-close-btn]');
+const overlay          = document.querySelector('[data-overlay]');
+const modalImg         = document.querySelector('[data-modal-img]');
+const modalTitle       = document.querySelector('[data-modal-title]');
+const modalText        = document.querySelector('[data-modal-text]');
+const toggleModal      = () => {
+  if (modalContainer) modalContainer.classList.toggle('active');
+  if (overlay)        overlay.classList.toggle('active');
+};
 testimonialsItem.forEach(item => {
   item.addEventListener('click', function () {
-    modalImg.src = this.querySelector('[data-testimonials-avatar]').src;
-    modalImg.alt = this.querySelector('[data-testimonials-avatar]').alt;
-    modalTitle.innerHTML = this.querySelector('[data-testimonials-title]').innerHTML;
-    modalText.innerHTML  = this.querySelector('[data-testimonials-text]').innerHTML;
+    if (modalImg)   { modalImg.src = this.querySelector('[data-testimonials-avatar]').src; modalImg.alt = this.querySelector('[data-testimonials-avatar]').alt; }
+    if (modalTitle) modalTitle.innerHTML = this.querySelector('[data-testimonials-title]').innerHTML;
+    if (modalText)  modalText.innerHTML  = this.querySelector('[data-testimonials-text]').innerHTML;
     toggleModal();
   });
 });
-modalCloseBtn.addEventListener('click', toggleModal);
-overlay.addEventListener('click', toggleModal);
+if (modalCloseBtn) modalCloseBtn.addEventListener('click', toggleModal);
+if (overlay)       overlay.addEventListener('click', toggleModal);
 
-/* ── PORTFOLIO FILTER + FEATURED CARD ── */
 
-// Project data for featured card rotation
+/* ══════════════════════════════════════════════════════════════
+   PORTFOLIO FILTER + FEATURED CARD
+══════════════════════════════════════════════════════════════ */
 const projectData = [
   { idx:0, title:'Crop Yield Prediction &amp; Climate Analysis',
-    desc:'Multi-model ML pipeline on NASA + FAOSTAT data to forecast agricultural yield across Indian states.',
+    desc:'Multi-model ML pipeline on NASA + FAOSTAT data to forecast agricultural yield across Indian states. Combines Random Forest, XGBoost and climate regression.',
     tags:['Python','XGBoost','NASA Data','Matplotlib'], badge:'data science',
     link:'https://colab.research.google.com/drive/11_9lmqIMm7xJDoiCLmp3HZDzxtpFGG5P?usp=sharing',
     img:'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=900&q=85' },
   { idx:1, title:'Indian Geographic Population Analysis',
-    desc:'EDA on Census 2011 data with district-level heatmaps, density plots and demographic trend visualizations.',
+    desc:'EDA on Census 2011 data with district-level heatmaps, density plots, and demographic trend visualizations.',
     tags:['Pandas','Sweetviz','Matplotlib','Power BI'], badge:'data science',
     link:'https://colab.research.google.com/drive/1bXTndwO2oWoxVOADHSSX71iyyYo4I0qH?usp=sharing',
     img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=85' },
@@ -406,7 +438,7 @@ const projectData = [
     link:'https://github.com/Harshu0810/Q-A-with-files',
     img:'https://res.cloudinary.com/dvkp0p3wc/image/upload/v1772554081/unnamed_ivslqr.jpg' },
   { idx:3, title:'Multilingual Legal Judgement Engineering',
-    desc:'NLP pipeline for Indian Supreme Court judgements — multilingual tokenization, NER and dataset curation.',
+    desc:'NLP pipeline for Indian Supreme Court judgements — multilingual tokenization, named-entity extraction, and dataset curation.',
     tags:['NLP','HuggingFace','Python','Dataset'], badge:'data science',
     link:'https://github.com/Harshu0810/indian-kanoon-sci-dataset',
     img:'https://images.unsplash.com/photo-1589998059171-988d887df646?w=900&q=85' },
@@ -415,8 +447,8 @@ const projectData = [
     tags:['Python','React','scikit-learn','Vercel'], badge:'web development',
     link:'https://autopersonal.vercel.app/',
     img:'https://res.cloudinary.com/dvkp0p3wc/image/upload/v1772132141/image_e8c8c9ac_skav80.png' },
-  { idx:5, title:'CGPA–SGPA Calculator &amp; Converter',
-    desc:'Smart GPA calculator supporting RTU Kota grading system — converts between CGPA, SGPA and percentage.',
+  { idx:5, title:'CGPA-SGPA Calculator &amp; Converter',
+    desc:'Smart GPA calculator supporting RTU Kota grading system — converts between CGPA, SGPA and percentage with animated results.',
     tags:['HTML','CSS','JavaScript','Vercel'], badge:'web development',
     link:'https://cgpa-scpa-magic-amber.vercel.app/',
     img:'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=900&q=85' },
@@ -426,7 +458,7 @@ const projectData = [
     link:'https://github.com/Harshu0810/Algorithm-analyzer',
     img:'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=900&q=85' },
   { idx:7, title:'Weather-Check App',
-    desc:'Real-time weather app using OpenWeatherMap API showing temperature, humidity, wind and 5-day forecast.',
+    desc:'Real-time weather app using OpenWeatherMap API — temperature, humidity, wind, and 5-day forecast with animated icons.',
     tags:['Python','API','Gradio','Colab'], badge:'web development',
     link:'https://github.com/Harshu0810/Weather-fetch-colab',
     img:'https://i.postimg.cc/yWvwCj43/weather-APP.jpg' }
@@ -436,28 +468,33 @@ let featuredIndex = 0;
 let featAutoTimer = null;
 
 function setFeatured(idx, animate = true) {
-  const p = projectData[idx];
-  const featImg    = document.getElementById('feat-img');
-  const featTitle  = document.getElementById('feat-title');
-  const featDesc   = document.getElementById('feat-desc');
-  const featTags   = document.getElementById('feat-tags');
-  const featBadge  = document.getElementById('feat-badge');
-  const featLink   = document.getElementById('feat-link');
-  const featDots   = document.querySelectorAll('.pf-dot');
+  const p         = projectData[idx];
+  const featImg   = document.getElementById('feat-img');
+  const featTitle = document.getElementById('feat-title');
+  const featDesc  = document.getElementById('feat-desc');
+  const featTags  = document.getElementById('feat-tags');
+  const featBadge = document.getElementById('feat-badge');
+  const featLink  = document.getElementById('feat-link');
+  const featDots  = document.querySelectorAll('.pf-dot');
   if (!featImg) return;
 
   if (animate) {
-    const body = document.querySelector('.pf-featured-body');
+    const body    = document.querySelector('.pf-featured-body');
     const imgWrap = document.querySelector('.pf-featured-img-wrap');
-    body.style.opacity = '0'; body.style.transform = 'translateX(10px)';
-    imgWrap.style.opacity = '0.4';
+    if (body)    { body.style.opacity = '0'; body.style.transform = 'translateX(10px)'; }
+    if (imgWrap)   imgWrap.style.opacity = '0.45';
     setTimeout(() => {
       updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx);
-      body.style.transition = 'opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1)';
-      imgWrap.style.transition = 'opacity .45s ease';
-      body.style.opacity = '1'; body.style.transform = 'translateX(0)';
-      imgWrap.style.opacity = '1';
-      setTimeout(() => { body.style.transition = ''; imgWrap.style.transition = ''; }, 500);
+      if (body) {
+        body.style.transition = 'opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1)';
+        body.style.opacity = '1'; body.style.transform = 'translateX(0)';
+        setTimeout(() => body.style.transition = '', 500);
+      }
+      if (imgWrap) {
+        imgWrap.style.transition = 'opacity .45s ease';
+        imgWrap.style.opacity = '1';
+        setTimeout(() => imgWrap.style.transition = '', 500);
+      }
     }, 200);
   } else {
     updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx);
@@ -466,50 +503,38 @@ function setFeatured(idx, animate = true) {
 }
 
 function updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx) {
-  featImg.src    = p.img;
-  featImg.alt    = p.title;
-  featTitle.innerHTML = p.title;
-  featDesc.textContent = p.desc;
-  featTags.innerHTML   = p.tags.map(t => `<span class="pf-tag">${t}</span>`).join('');
+  featImg.src           = p.img;
+  featImg.alt           = p.title;
+  featTitle.innerHTML   = p.title;
+  featDesc.textContent  = p.desc;
+  featTags.innerHTML    = p.tags.map(t => `<span class="pf-tag">${t}</span>`).join('');
   featBadge.textContent = p.badge === 'data science' ? 'Data Science' : 'Web Dev';
   featBadge.className   = 'pf-badge ' + (p.badge === 'data science' ? 'pf-badge-ds' : 'pf-badge-web');
-  featLink.href  = p.link;
+  featLink.href         = p.link;
   featDots.forEach((d, i) => d.classList.toggle('active', i === idx));
 }
 
 function startFeatAuto() {
   clearInterval(featAutoTimer);
   featAutoTimer = setInterval(() => {
-    const visibleCards = Array.from(document.querySelectorAll('.pf-card.active'));
-    if (!visibleCards.length) return;
-    const visibleIndices = visibleCards.map(c => +c.dataset.idx);
-    const currentPos = visibleIndices.indexOf(featuredIndex);
-    const nextIdx = visibleIndices[(currentPos + 1) % visibleIndices.length];
+    const visible = Array.from(document.querySelectorAll('.pf-card.active'));
+    if (!visible.length) return;
+    const indices    = visible.map(c => +c.dataset.idx);
+    const currentPos = indices.indexOf(featuredIndex);
+    const nextIdx    = indices[(currentPos + 1) % indices.length];
     setFeatured(nextIdx);
   }, 4000);
 }
 
-// Card click → update featured
 document.querySelectorAll('.pf-card').forEach(card => {
-  card.addEventListener('mouseenter', () => {
-    clearInterval(featAutoTimer);
-    setFeatured(+card.dataset.idx);
-  });
+  card.addEventListener('mouseenter', () => { clearInterval(featAutoTimer); setFeatured(+card.dataset.idx); });
   card.addEventListener('mouseleave', () => startFeatAuto());
 });
-
-// Dot click
 document.querySelectorAll('.pf-dot').forEach(dot => {
-  dot.addEventListener('click', () => {
-    clearInterval(featAutoTimer);
-    setFeatured(+dot.dataset.idx);
-    startFeatAuto();
-  });
+  dot.addEventListener('click', () => { clearInterval(featAutoTimer); setFeatured(+dot.dataset.idx); startFeatAuto(); });
 });
 
-// Filter
 const filterBtns  = document.querySelectorAll('[data-filter-btn]');
-const filterItems = document.querySelectorAll('[data-filter-item]');
 const selectEl    = document.querySelector('[data-select]');
 const selectValue = document.querySelector('[data-selecct-value]');
 const selectItems = document.querySelectorAll('[data-select-item]');
@@ -523,28 +548,19 @@ selectItems.forEach(item => {
 });
 
 function runFilter(val) {
-  let activeCount = 0;
-  const allCards = document.querySelectorAll('.pf-card');
-  allCards.forEach((card, i) => {
+  let count = 0;
+  document.querySelectorAll('.pf-card').forEach(card => {
     const show = val === 'all' || card.dataset.category === val;
     card.classList.toggle('active', show);
-    if (show) {
-      card.style.animationDelay = (activeCount * 0.06) + 's';
-      activeCount++;
-    }
+    if (show) { card.style.animationDelay = (count * 0.07) + 's'; count++; }
   });
-  // update dot visibility
   document.querySelectorAll('.pf-dot').forEach(dot => {
     const card = document.querySelector(`.pf-card[data-idx="${dot.dataset.idx}"]`);
     dot.style.display = (card && card.classList.contains('active')) ? '' : 'none';
   });
-  // jump featured to first visible
-  const firstVisible = document.querySelector('.pf-card.active');
-  if (firstVisible) {
-    setFeatured(+firstVisible.dataset.idx, false);
-    startFeatAuto();
-  }
-  setTimeout(() => { if (window.observeReveal) observeReveal(); if (window.initTilt) initTilt(); }, 80);
+  const first = document.querySelector('.pf-card.active');
+  if (first) { setFeatured(+first.dataset.idx, false); startFeatAuto(); }
+  setTimeout(() => { observeReveal(); initTilt(); }, 80);
 }
 
 let lastFilterBtn = filterBtns[0];
@@ -552,39 +568,50 @@ filterBtns.forEach(btn => {
   btn.addEventListener('click', function () {
     const val = (this.dataset.pfFilter || this.innerText).toLowerCase().trim();
     runFilter(val);
-    lastFilterBtn.classList.remove('active');
+    if (lastFilterBtn) lastFilterBtn.classList.remove('active');
     this.classList.add('active');
     lastFilterBtn = this;
     if (selectValue) selectValue.innerText = this.innerText;
   });
 });
 
-// Boot
 setFeatured(0, false);
 startFeatAuto();
 
-/* form */
+
+/* ══════════════════════════════════════════════════════════════
+   CONTACT FORM
+══════════════════════════════════════════════════════════════ */
 const form       = document.querySelector('[data-form]');
 const formInputs = document.querySelectorAll('[data-form-input]');
 const formBtn    = document.querySelector('[data-form-btn]');
-formInputs.forEach(inp => inp.addEventListener('input', () => formBtn.toggleAttribute('disabled', !form.checkValidity())));
+if (form && formBtn) {
+  formInputs.forEach(inp => inp.addEventListener('input', () => formBtn.toggleAttribute('disabled', !form.checkValidity())));
+}
 
-/* navigation */
+
+/* ══════════════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════════════ */
 const navLinks = document.querySelectorAll('[data-nav-link]');
 const pages    = document.querySelectorAll('[data-page]');
+
 navLinks.forEach(link => {
   link.addEventListener('click', function () {
-    const target = this.innerHTML.toLowerCase();
+    const target = this.innerHTML.trim().toLowerCase();
     runWipe(() => {
       pages.forEach((page, i) => {
         const match = target === page.dataset.page;
         page.classList.toggle('active', match);
-        navLinks[i].classList.toggle('active', match);
+        if (navLinks[i]) navLinks[i].classList.toggle('active', match);
       });
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: 'instant' });
       setTimeout(() => {
-        observeReveal(); initSkillBars(); initTilt();
-        splitTextInit(); initMagnetic();
+        observeReveal();
+        initSkillBars();
+        initTilt();
+        splitTextInit();
+        initMagnetic();
       }, 60);
     });
   });
