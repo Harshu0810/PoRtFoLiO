@@ -349,40 +349,65 @@ main { margin: 15px 12px; margin-bottom: 75px; min-width: 259px; }
 @keyframes blink-animation { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
 /* Stat boxes */
+/* ── Slim inline stats bar ── */
 .stat-boxes {
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 14px; margin-top: 24px;
+  display: flex;
+  align-items: stretch;
+  margin-top: 28px;
+  border: 1px solid var(--jet);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--eerie-black-2);
 }
 .stat-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 16px 10px;
   position: relative;
-  background: var(--border-gradient-onyx);
-  border-radius: 16px; padding: 18px 10px;
-  text-align: center; box-shadow: var(--shadow-2);
-  z-index: 1;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  transition: background 0.25s ease;
 }
-.stat-box::before {
-  content: ""; position: absolute; inset: 1px;
-  background: var(--bg-gradient-jet);
-  border-radius: inherit; z-index: -1;
+/* Vertical divider between items */
+.stat-box + .stat-box::before {
+  content: "";
+  position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 1px;
+  background: var(--jet);
 }
+/* Gold top-edge accent — animates in on reveal */
 .stat-box::after {
   content: "";
-  position: absolute; top: 0; left: -60%;
-  width: 40%; height: 100%;
-  background: linear-gradient(90deg, transparent, hsla(255,255%,100%,0.05), transparent);
-  transform: skewX(-15deg);
-  transition: left 0.7s ease;
+  position: absolute; top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 2px;
+  background: var(--text-gradient-yellow);
+  border-radius: 0 0 2px 2px;
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: var(--glow-gold);
 }
-.stat-box:hover { transform: translateY(-5px); box-shadow: var(--shadow-2), var(--glow-gold); }
-.stat-box:hover::after { left: 160%; }
+.stat-box:hover { background: hsla(45,100%,72%,0.04); }
+.stat-box:hover::after { width: 60%; }
+.stat-box.visible::after { width: 40%; }
+
 .stat-number {
-  font-family: var(--ff-heading); font-size: 1.7rem; font-weight: 700;
+  font-family: var(--ff-heading);
+  font-size: 1.45rem; font-weight: 700;
   background: var(--text-gradient-yellow);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1;
 }
-.stat-label { color: var(--light-gray-70); font-size: var(--fs-8); margin-top: 4px; letter-spacing: 0.5px; }
+.stat-label {
+  color: var(--light-gray-70);
+  font-size: var(--fs-8);
+  letter-spacing: 0.4px;
+  text-align: center;
+}
 
 /* ── SERVICES ────────────────────────────────────────────────── */
 .service { margin-bottom: 35px; }
@@ -650,8 +675,10 @@ main { margin: 15px 12px; margin-bottom: 75px; min-width: 259px; }
    Layout: [thumbnail] | [label + badge + title + tags] | [actions + dots]
 ════════════════════════════════════════════════════════════════ */
 
-/* ── Eyebrow label above the strip ── */
-.pf-featured-label {
+/* Featured strip removed — grid stands alone */
+#pf-featured,
+.pf-featured,
+.pf-featured-label { display: none !important; }
   display: flex; align-items: center; gap: 8px;
   margin-bottom: 10px;
 }
@@ -1182,8 +1209,7 @@ textarea.form-input::-webkit-resizer { display: none; }
   textarea.form-input { margin-bottom: 30px; }
   .form-btn { --fs-6: 16px; padding: 16px 20px; }
   .form-btn ion-icon { font-size: 18px; }
-  .stat-boxes { gap: 18px; }
-  .stat-number { font-size: 2rem; }
+  .stat-number { font-size: 1.55rem; }
   .cert-list { gap: 20px; }
   .tools-grid { gap: 18px; }
 }

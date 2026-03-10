@@ -590,18 +590,10 @@ filterBtns.forEach(btn => {
   });
 });
 
-// Inject "Now Spotlighting" eyebrow label above the strip
-(function () {
-  const strip = document.getElementById('pf-featured');
-  if (!strip) return;
-  const label = document.createElement('div');
-  label.className = 'pf-featured-label';
-  label.innerHTML = '<span>Now Spotlighting</span>';
-  strip.parentNode.insertBefore(label, strip);
-})();
+// Featured strip removed — no label injection needed
 
 setFeatured(0, false);
-startFeatAuto();
+// startFeatAuto disabled — featured strip is hidden
 
 
 /* ══════════════════════════════════════════════════════════════
