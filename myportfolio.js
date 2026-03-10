@@ -490,23 +490,27 @@ function setFeatured(idx, animate = true) {
   if (!featImg) return;
 
   if (animate) {
-    const body    = document.querySelector('.pf-featured-body');
+    const title   = document.querySelector('.pf-featured-title');
+    const tags    = document.querySelector('.pf-featured-tags');
+    const badge   = document.getElementById('feat-badge');
     const imgWrap = document.querySelector('.pf-featured-img-wrap');
-    if (body)    { body.style.opacity = '0'; body.style.transform = 'translateX(10px)'; }
-    if (imgWrap)   imgWrap.style.opacity = '0.45';
+
+    // Fade out image + slide out text
+    if (imgWrap)  { imgWrap.style.opacity = '0.5'; imgWrap.style.transform = 'scale(0.97)'; imgWrap.style.transition = 'opacity .3s ease, transform .3s ease'; }
+    [title, tags, badge].forEach(el => { if (el) { el.style.opacity = '0'; el.style.transform = 'translateX(8px)'; el.style.transition = 'opacity .2s ease, transform .2s ease'; } });
+
     setTimeout(() => {
       updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx);
-      if (body) {
-        body.style.transition = 'opacity .45s ease, transform .45s cubic-bezier(.22,1,.36,1)';
-        body.style.opacity = '1'; body.style.transform = 'translateX(0)';
-        setTimeout(() => body.style.transition = '', 500);
-      }
-      if (imgWrap) {
-        imgWrap.style.transition = 'opacity .45s ease';
-        imgWrap.style.opacity = '1';
-        setTimeout(() => imgWrap.style.transition = '', 500);
-      }
-    }, 200);
+      // Slide in new content
+      if (imgWrap)  { imgWrap.style.opacity = '1'; imgWrap.style.transform = 'scale(1)'; }
+      [document.querySelector('.pf-featured-title'), document.querySelector('.pf-featured-tags'), document.getElementById('feat-badge')]
+        .forEach((el, i) => { if (el) { setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'translateX(0)'; }, i * 40); } });
+      setTimeout(() => {
+        if (imgWrap) { imgWrap.style.transition = ''; imgWrap.style.transform = ''; }
+        [document.querySelector('.pf-featured-title'), document.querySelector('.pf-featured-tags'), document.getElementById('feat-badge')]
+          .forEach(el => { if (el) { el.style.transition = ''; el.style.transform = ''; } });
+      }, 400);
+    }, 220);
   } else {
     updateFeaturedDOM(p, featImg, featTitle, featDesc, featTags, featBadge, featLink, featDots, idx);
   }
@@ -585,6 +589,16 @@ filterBtns.forEach(btn => {
     if (selectValue) selectValue.innerText = this.innerText;
   });
 });
+
+// Inject "Now Spotlighting" eyebrow label above the strip
+(function () {
+  const strip = document.getElementById('pf-featured');
+  if (!strip) return;
+  const label = document.createElement('div');
+  label.className = 'pf-featured-label';
+  label.innerHTML = '<span>Now Spotlighting</span>';
+  strip.parentNode.insertBefore(label, strip);
+})();
 
 setFeatured(0, false);
 startFeatAuto();
