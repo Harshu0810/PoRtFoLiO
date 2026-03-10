@@ -351,8 +351,7 @@ main { margin: 15px 12px; margin-bottom: 75px; min-width: 259px; }
 /* Stat boxes */
 /* ── Slim inline stats bar ── */
 .stat-boxes {
-  display: flex;
-  align-items: stretch;
+  display: none;
   margin-top: 28px;
   border: 1px solid var(--jet);
   border-radius: 14px;
@@ -1199,7 +1198,7 @@ textarea.form-input::-webkit-resizer { display: none; }
   .navbar-list { gap: 20px; }
   .navbar-link { --fs-8: 14px; }
   .about .article-title { margin-bottom: 20px; }
-  .about-text { margin-bottom: 40px; }
+  .about-text { margin-bottom: 30px; }
   .service-item { display: flex; justify-content: flex-start; align-items: flex-start; gap: 18px; padding: 30px; }
   .service-icon-box { margin-bottom: 0; margin-top: 5px; }
   .service-content-box { text-align: left; }
