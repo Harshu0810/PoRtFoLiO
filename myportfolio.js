@@ -170,15 +170,22 @@ type();
    SKILL BAR ANIMATION (scroll-triggered)
 ═══════════════════════════════════════════ */
 (function () {
+  // Store original target widths from data-target attribute on first run
+  document.querySelectorAll('.skill-progress-fill').forEach(fill => {
+    if (!fill.dataset.target) {
+      // fallback: read from inline style if data-target not set
+      const m = fill.getAttribute('style') && fill.getAttribute('style').match(/width:\s*([\d.]+%)/);
+      if (m) fill.dataset.target = m[1];
+    }
+    fill.style.width = '0';
+    fill.classList.remove('animated');
+  });
+
   function initSkillBars() {
-    const fills = document.querySelectorAll('.skill-progress-fill');
-    fills.forEach(fill => {
-      const targetWidth = fill.style.width || fill.getAttribute('style').match(/width:\s*([\d.]+%)/)?.[1];
-      if (targetWidth) {
-        fill.style.setProperty('--target-width', targetWidth);
-        fill.style.width = '0';
-        fill.classList.remove('animated');
-      }
+    // Reset all bars
+    document.querySelectorAll('.skill-progress-fill').forEach(fill => {
+      fill.style.width = '0';
+      fill.classList.remove('animated');
     });
 
     const barObserver = new IntersectionObserver((entries) => {
@@ -186,12 +193,15 @@ type();
         if (entry.isIntersecting) {
           const fills = entry.target.querySelectorAll('.skill-progress-fill');
           fills.forEach((fill, i) => {
-            setTimeout(() => fill.classList.add('animated'), i * 120);
+            setTimeout(() => {
+              fill.style.setProperty('--target-width', fill.dataset.target || '0%');
+              fill.classList.add('animated');
+            }, i * 130);
           });
           barObserver.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.3 });
+    }, { threshold: 0.2 });
 
     document.querySelectorAll('.skills-list').forEach(el => barObserver.observe(el));
   }
