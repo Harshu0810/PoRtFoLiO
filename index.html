@@ -360,13 +360,444 @@
       transform: translateY(-3px);
       box-shadow: 0 8px 24px hsla(0,0%,0%,0.3);
     }
+
+    /* ══════════════════════════════════════════════════════
+       ADVANCED ANIMATION SYSTEM v3 — Harshit Goyal Portfolio
+    ══════════════════════════════════════════════════════ */
+
+    /* ── Custom scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, hsl(45,100%,72%), hsl(35,100%,60%));
+      border-radius: 4px;
+    }
+
+    /* ── Loader screen ── */
+    .loader-screen {
+      position: fixed; inset: 0;
+      background: hsl(240,2%,12%);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .loader-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-inner { position: relative; width: 80px; height: 80px; }
+    .loader-ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: hsl(45,100%,72%);
+      border-right-color: hsl(35,100%,65%);
+      animation: loaderSpin 0.9s cubic-bezier(0.6,0,0.4,1) infinite;
+    }
+    .loader-ring::after {
+      content: "";
+      position: absolute; inset: 6px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      border-bottom-color: hsla(45,100%,72%,0.4);
+      animation: loaderSpin 1.4s cubic-bezier(0.6,0,0.4,1) infinite reverse;
+    }
+    .loader-text {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px; font-weight: 600;
+      background: linear-gradient(135deg, hsl(45,100%,72%), hsl(35,100%,65%));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+    @keyframes loaderSpin { to { transform: rotate(360deg); } }
+
+    /* ── Page wipe transition ── */
+    .page-wipe {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, hsl(240,2%,10%), hsl(240,2%,14%));
+      z-index: 9999; pointer-events: none;
+      clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+      transition: clip-path 0s;
+    }
+    .page-wipe.enter {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+      transition: clip-path 0.4s cubic-bezier(0.76,0,0.24,1);
+    }
+    .page-wipe.leave {
+      clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+      transition: clip-path 0.4s cubic-bezier(0.76,0,0.24,1);
+    }
+
+    /* ── Grain film overlay ── */
+    .grain-overlay {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 1; opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+      animation: grainAnim 0.4s steps(1) infinite;
+    }
+    @keyframes grainAnim {
+      0%  { background-position: 0 0; }
+      25% { background-position: -40px 20px; }
+      50% { background-position: 20px -35px; }
+      75% { background-position: -20px 40px; }
+      100%{ background-position: 30px -15px; }
+    }
+
+    /* ── Aurora background orbs ── */
+    .aurora-orb {
+      position: fixed; border-radius: 50%;
+      pointer-events: none; filter: blur(90px);
+      z-index: 0; animation: orbDrift 22s ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: 600px; height: 600px; opacity: 0.06;
+      background: radial-gradient(circle, hsl(45,100%,65%) 0%, transparent 65%);
+      top: -200px; left: -200px;
+    }
+    .orb-2 {
+      width: 450px; height: 450px; opacity: 0.04;
+      background: radial-gradient(circle, hsl(210,100%,65%) 0%, transparent 65%);
+      bottom: -150px; right: -100px;
+      animation-delay: -11s; animation-duration: 26s;
+    }
+    @keyframes orbDrift {
+      0%   { transform: translate(0,0) scale(1); }
+      50%  { transform: translate(80px,50px) scale(1.1); }
+      100% { transform: translate(-40px,80px) scale(0.95); }
+    }
+
+    /* ── Dual cursor system ── */
+    .cursor-glow {
+      position: fixed; border-radius: 50%;
+      width: 10px; height: 10px;
+      background: hsl(45,100%,72%);
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+      mix-blend-mode: screen;
+      will-change: left, top;
+    }
+    .cursor-ring {
+      position: fixed; border-radius: 50%;
+      width: 36px; height: 36px;
+      border: 1.5px solid hsla(45,100%,72%,0.55);
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width 0.35s cubic-bezier(0.22,1,0.36,1),
+                  height 0.35s cubic-bezier(0.22,1,0.36,1),
+                  border-color 0.3s;
+      will-change: left, top;
+    }
+    .cursor-ring.hovering {
+      width: 52px; height: 52px;
+      border-color: hsla(45,100%,72%,0.9);
+    }
+    .cursor-ring.clicking {
+      width: 20px; height: 20px;
+      border-color: hsl(45,100%,72%);
+    }
+    @media (hover: none) { .cursor-glow, .cursor-ring { display: none; } }
+
+    /* ── Magnetic button wrap ── */
+    [data-magnetic] { display: inline-block; }
+
+    /* ── Scroll reveal base ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.7s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left {
+      opacity: 0; transform: translateX(-30px);
+      transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.7s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+    /* stagger delays */
+    .stagger-1 { transition-delay: 0.06s; }
+    .stagger-2 { transition-delay: 0.14s; }
+    .stagger-3 { transition-delay: 0.22s; }
+    .stagger-4 { transition-delay: 0.30s; }
+    .stagger-5 { transition-delay: 0.38s; }
+    .stagger-6 { transition-delay: 0.46s; }
+    .stagger-7 { transition-delay: 0.54s; }
+    .stagger-8 { transition-delay: 0.62s; }
+
+    /* ── Split text chars ── */
+    .split-char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    .split-char.space { width: 0.3em; }
+    .split-char.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Avatar ── */
+    .avatar-box {
+      position: relative; isolation: isolate;
+      animation: floatAvatar 4.5s ease-in-out infinite;
+    }
+    @keyframes floatAvatar {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    .avatar-box::before {
+      content: "";
+      position: absolute; inset: -3px;
+      border-radius: inherit;
+      background: conic-gradient(
+        hsl(45,100%,72%) 0deg,
+        transparent 90deg,
+        hsl(35,100%,65%) 180deg,
+        transparent 270deg,
+        hsl(45,100%,72%) 360deg
+      );
+      animation: spinRing 5s linear infinite;
+      opacity: 0.6; z-index: -1;
+    }
+    @keyframes spinRing { to { transform: rotate(360deg); } }
+    .avatar-box:hover img {
+      filter: drop-shadow(0 0 14px hsla(45,100%,72%,0.6));
+    }
+
+    /* ── Navbar animated underline ── */
+    .navbar-link { position: relative; overflow: hidden; }
+    .navbar-link::after {
+      content: "";
+      position: absolute; bottom: 10px; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, hsl(45,100%,72%), hsl(35,100%,65%));
+      border-radius: 2px;
+      transform: scaleX(0); transform-origin: right;
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .navbar-link:hover::after { transform: scaleX(0.6); transform-origin: left; }
+    .navbar-link.active::after { transform: scaleX(0.6); transform-origin: left; }
+
+    /* ── Page fade in ── */
+    article.active {
+      animation: pageFadeIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Section title shimmer ── */
+    .article-title::after {
+      background: linear-gradient(90deg,
+        hsl(45,100%,72%) 0%,
+        hsl(35,100%,75%) 50%,
+        hsl(45,100%,72%) 100%);
+      background-size: 200% auto;
+      animation: shimmer 3.5s linear infinite;
+    }
+    @keyframes shimmer {
+      from { background-position: 0% center; }
+      to   { background-position: 200% center; }
+    }
+
+    /* ── Skill bars ── */
+    .skill-progress-fill {
+      width: 0 !important;
+      position: relative;
+      transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+    }
+    .skill-progress-fill.animated { width: var(--target-width) !important; }
+    .skill-progress-fill::after {
+      content: "";
+      position: absolute; top: 0; right: 0;
+      width: 6px; height: 100%;
+      background: hsl(45,100%,85%);
+      border-radius: 4px;
+      box-shadow: 0 0 8px hsl(45,100%,72%);
+      opacity: 0;
+      transition: opacity 0.3s 1s;
+    }
+    .skill-progress-fill.animated::after { opacity: 1; }
+
+    /* ── Skill tags ── */
+    .skill-tag {
+      position: relative; overflow: hidden;
+      transition: background 0.25s, color 0.25s, transform 0.2s, box-shadow 0.25s;
+      cursor: default;
+    }
+    .skill-tag:hover {
+      background: hsla(45,100%,72%,0.18);
+      color: hsl(45,100%,82%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px hsla(45,100%,72%,0.2);
+    }
+    .skill-tag::before {
+      content: "";
+      position: absolute; top: 0; left: -120%;
+      width: 80%; height: 100%;
+      background: linear-gradient(90deg,
+        transparent, hsla(255,100%,100%,0.15), transparent);
+      transition: left 0.5s ease;
+    }
+    .skill-tag:hover::before { left: 130%; }
+
+    /* ── Cert cards ── */
+    .cert-item { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .cert-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 36px hsla(0,0%,0%,0.45),
+                  0 0 0 1px hsla(45,100%,72%,0.15);
+    }
+    .cert-badge {
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+    }
+    .cert-item:hover .cert-badge {
+      transform: rotate(12deg) scale(1.2);
+      box-shadow: 0 0 16px hsla(45,100%,72%,0.4);
+    }
+
+    /* ── Service items ── */
+    .service-item { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .service-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 36px hsla(0,0%,0%,0.38);
+    }
+
+    /* ── Timeline dot glow ── */
+    .timeline-item::after {
+      animation: dotGlow 3s ease-in-out infinite;
+    }
+    @keyframes dotGlow {
+      0%,100% { box-shadow: 0 0 0 4px var(--jet); }
+      50%      { box-shadow: 0 0 0 4px var(--jet), 0 0 12px 4px hsla(45,100%,72%,0.5); }
+    }
+
+    /* ── Tools category cards ── */
+    .tools-category {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .tools-category:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 28px hsla(0,0%,0%,0.35),
+                  0 0 0 1px hsla(45,100%,72%,0.12);
+    }
+
+    /* ── Social icon hover ── */
+    .social-link {
+      transition: color 0.25s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1) !important;
+    }
+    .social-link:hover {
+      color: hsl(45,100%,72%) !important;
+      transform: translateY(-5px) scale(1.2) rotate(-5deg) !important;
+    }
+
+    /* ── Project card glare ── */
+    .project-item { position: relative; }
+    .card-glare {
+      position: absolute;
+      inset: 0; border-radius: 16px;
+      pointer-events: none; z-index: 3;
+      opacity: 0;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%),
+        hsla(45,100%,72%,0.14) 0%, transparent 55%);
+      transition: opacity 0.3s;
+    }
+    .project-item:hover .card-glare { opacity: 1; }
+
+    /* ── Ripple effect ── */
+    .ripple-target { position: relative; overflow: hidden; }
+    .ripple-dot {
+      position: absolute; border-radius: 50%;
+      transform: scale(0); pointer-events: none;
+      background: hsla(45,100%,72%,0.3);
+      animation: rippleExpand 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    @keyframes rippleExpand {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ── Counter glow ── */
+    [data-count].counted {
+      background: linear-gradient(135deg, hsl(45,100%,72%), hsl(35,100%,65%));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Form focus glow ── */
+    .form-input {
+      transition: border-color 0.3s, box-shadow 0.3s !important;
+    }
+    .form-input:focus {
+      border-color: hsla(45,100%,72%,0.5) !important;
+      box-shadow: 0 0 0 3px hsla(45,100%,72%,0.1), inset 0 0 0 1px hsla(45,100%,72%,0.2) !important;
+    }
+
+    /* ── Icon box hover ── */
+    .icon-box { transition: box-shadow 0.3s, transform 0.3s; }
+    .contact-item:hover .icon-box {
+      box-shadow: 0 0 16px hsla(45,100%,72%,0.4);
+      transform: scale(1.1) rotate(-5deg);
+    }
+
+    /* ── Name hover glow ── */
+    .info-content .name {
+      transition: text-shadow 0.35s;
+    }
+    .info-content .name:hover {
+      text-shadow: 0 0 24px hsla(45,100%,72%,0.55);
+    }
+
+    /* ── Sidebar hover line ── */
+    .contact-link {
+      position: relative; display: inline-block;
+    }
+    .contact-link::after {
+      content: "";
+      position: absolute; bottom: -1px; left: 0;
+      width: 0; height: 1px;
+      background: hsl(45,100%,72%);
+      transition: width 0.3s ease;
+    }
+    .contact-link:hover::after { width: 100%; }
+
+    /* ── Skills section marquee ── */
+    .tools-marquee-wrap {
+      overflow: hidden; margin-top: 20px;
+      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+    .tools-marquee {
+      display: flex; gap: 10px; width: max-content;
+      animation: marqueeRun 30s linear infinite;
+    }
+    .tools-marquee:hover { animation-play-state: paused; }
+    .tools-marquee .skill-tag { flex-shrink: 0; white-space: nowrap; }
+    @keyframes marqueeRun {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Particle canvas ── */
+    #particle-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0; opacity: 0.5;
+    }
+
   </style>
 </head>
 
 <body>
 
+  <div class="loader-screen" id="loaderScreen"><div class="loader-inner"><div class="loader-ring"></div><span class="loader-text">HG</span></div></div>
+
   <canvas id="particle-canvas"></canvas>
   <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="grain-overlay"></div>
+  <div class="aurora-orb orb-1"></div>
+  <div class="aurora-orb orb-2"></div>
+  <div class="page-wipe" id="pageWipe"></div>
 
   <main>
 
@@ -380,7 +811,7 @@
         </figure>
 
         <div class="info-content">
-          <h1 class="name" title="Harshit Goyal">Harshit Goyal</h1>
+          <h1 class="name" title="Harshit Goyal" data-scramble>Harshit Goyal</h1>
           <p class="title">Data Science Enthusiast</p>
         </div>
 
@@ -444,19 +875,19 @@
         <ul class="social-list">
 
           <li class="social-item">
-            <a href="https://github.com/Harshu0810" class="social-link" target="_blank">
+            <a href="https://github.com/Harshu0810" class="social-link" data-magnetic target="_blank">
               <ion-icon name="logo-github"></ion-icon>
             </a>
           </li>
 
           <li class="social-item">
-            <a href="https://www.linkedin.com/in/harshit-goyal-b2aaa6214" class="social-link" target="_blank">
+            <a href="https://www.linkedin.com/in/harshit-goyal-b2aaa6214" class="social-link" data-magnetic target="_blank">
               <ion-icon name="logo-linkedin"></ion-icon>
             </a>
           </li>
 
           <li class="social-item">
-            <a href="https://www.instagram.com/harshit__2425" class="social-link" target="_blank">
+            <a href="https://www.instagram.com/harshit__2425" class="social-link" data-magnetic target="_blank">
               <ion-icon name="logo-instagram"></ion-icon>
             </a>
           </li>
@@ -475,16 +906,16 @@
       <nav class="navbar">
         <ul class="navbar-list">
           <li class="navbar-item">
-            <button class="navbar-link active" data-nav-link>About</button>
+            <button class="navbar-link active" data-magnetic data-nav-link>About</button>
           </li>
           <li class="navbar-item">
-            <button class="navbar-link" data-nav-link>Resume</button>
+            <button class="navbar-link" data-magnetic data-nav-link>Resume</button>
           </li>
           <li class="navbar-item">
-            <button class="navbar-link" data-nav-link>Portfolio</button>
+            <button class="navbar-link" data-magnetic data-nav-link>Portfolio</button>
           </li>
           <li class="navbar-item">
-            <button class="navbar-link" data-nav-link>Contact</button>
+            <button class="navbar-link" data-magnetic data-nav-link>Contact</button>
           </li>
         </ul>
       </nav>
@@ -494,7 +925,7 @@
       <article class="about active" data-page="about">
 
         <header>
-          <h2 class="h2 article-title">About me</h2>
+          <h2 class="h2 article-title" data-split>About me</h2>
         </header>
 
         <section class="about-text">
@@ -636,6 +1067,54 @@
 
         </section>
 
+
+        <!-- ── Scrolling tech stack marquee ── -->
+        <div class="tools-marquee-wrap reveal">
+          <div class="tools-marquee" id="techMarquee">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Pandas</span>
+            <span class="skill-tag">NumPy</span>
+            <span class="skill-tag">scikit-learn</span>
+            <span class="skill-tag">XGBoost</span>
+            <span class="skill-tag">LlamaIndex</span>
+            <span class="skill-tag">Mistral-7B</span>
+            <span class="skill-tag">RAG</span>
+            <span class="skill-tag">SQL</span>
+            <span class="skill-tag">Power BI</span>
+            <span class="skill-tag">Tableau</span>
+            <span class="skill-tag">Matplotlib</span>
+            <span class="skill-tag">Sweetviz</span>
+            <span class="skill-tag">HuggingFace</span>
+            <span class="skill-tag">Gradio</span>
+            <span class="skill-tag">Git</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">HTML &amp; CSS</span>
+            <span class="skill-tag">C++</span>
+            <span class="skill-tag">Chart.js</span>
+            <!-- duplicate for seamless loop -->
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">Pandas</span>
+            <span class="skill-tag">NumPy</span>
+            <span class="skill-tag">scikit-learn</span>
+            <span class="skill-tag">XGBoost</span>
+            <span class="skill-tag">LlamaIndex</span>
+            <span class="skill-tag">Mistral-7B</span>
+            <span class="skill-tag">RAG</span>
+            <span class="skill-tag">SQL</span>
+            <span class="skill-tag">Power BI</span>
+            <span class="skill-tag">Tableau</span>
+            <span class="skill-tag">Matplotlib</span>
+            <span class="skill-tag">Sweetviz</span>
+            <span class="skill-tag">HuggingFace</span>
+            <span class="skill-tag">Gradio</span>
+            <span class="skill-tag">Git</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">HTML &amp; CSS</span>
+            <span class="skill-tag">C++</span>
+            <span class="skill-tag">Chart.js</span>
+          </div>
+        </div>
+
         <!-- Dummy modal containers still needed for JS not to error -->
         <div class="modal-container" data-modal-container style="display:none;">
           <div class="overlay" data-overlay></div>
@@ -662,7 +1141,7 @@
       <article class="resume" data-page="resume">
 
         <header>
-          <h2 class="h2 article-title">Resume</h2>
+          <h2 class="h2 article-title" data-split>Resume</h2>
         </header>
 
         <!-- EDUCATION -->
@@ -680,7 +1159,7 @@
               <h4 class="h4 timeline-item-title">Rajasthan Technical University, Kota</h4>
               <span>2022 — 2026</span>
               <p class="timeline-text">
-                B.Tech. in Information Technology | CGPA: <strong style="color:var(--orange-yellow-crayola)">8.45</strong>
+                B.Tech. in Information Technology | CGPA: <strong style="color:var(--orange-yellow-crayola)" data-count="8.45" data-dec="2">8.45</strong>
               </p>
             </li>
 
@@ -688,7 +1167,7 @@
               <h4 class="h4 timeline-item-title">Vrindavan Public School (CBSE)</h4>
               <span>2020 — 2022</span>
               <p class="timeline-text">
-                Class XII — Aggregate: <strong style="color:var(--orange-yellow-crayola)">82.80%</strong>
+                Class XII — Aggregate: <strong style="color:var(--orange-yellow-crayola)" data-count="82.80" data-dec="2" data-suf="%">82.80%</strong>
               </p>
             </li>
 
@@ -696,7 +1175,7 @@
               <h4 class="h4 timeline-item-title">St. Paul's Sr. Sec. School, Ajmer</h4>
               <span>2019 — 2020</span>
               <p class="timeline-text">
-                Class X (CBSE) — Aggregate: <strong style="color:var(--orange-yellow-crayola)">84.80%</strong>
+                Class X (CBSE) — Aggregate: <strong style="color:var(--orange-yellow-crayola)" data-count="84.80" data-dec="2" data-suf="%">84.80%</strong>
               </p>
             </li>
 
@@ -896,7 +1375,7 @@
       <article class="portfolio" data-page="portfolio">
 
         <header>
-          <h2 class="h2 article-title">Portfolio</h2>
+          <h2 class="h2 article-title" data-split>Portfolio</h2>
         </header>
 
         <section class="projects">
@@ -933,7 +1412,7 @@
 
             <li class="project-item active reveal stagger-1" data-filter-item data-category="data science">
               <a href="https://colab.research.google.com/drive/11_9lmqIMm7xJDoiCLmp3HZDzxtpFGG5P?usp=sharing" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -947,7 +1426,7 @@
 
             <li class="project-item active reveal stagger-2" data-filter-item data-category="data science">
               <a href="https://colab.research.google.com/drive/1bXTndwO2oWoxVOADHSSX71iyyYo4I0qH?usp=sharing" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -961,7 +1440,7 @@
 
             <li class="project-item active reveal stagger-3" data-filter-item data-category="data science">
               <a href="https://github.com/Harshu0810/Q-A-with-files" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -975,7 +1454,7 @@
 
             <li class="project-item active reveal stagger-4" data-filter-item data-category="data science">
               <a href="https://github.com/Harshu0810/indian-kanoon-sci-dataset" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -991,7 +1470,7 @@
 
             <li class="project-item active reveal stagger-1" data-filter-item data-category="web development">
               <a href="https://autopersonal.vercel.app/" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -1005,7 +1484,7 @@
 
             <li class="project-item active reveal stagger-2" data-filter-item data-category="web development">
               <a href="https://cgpa-scpa-magic-amber.vercel.app/" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -1019,7 +1498,7 @@
 
             <li class="project-item active reveal stagger-3" data-filter-item data-category="web development">
               <a href="https://github.com/Harshu0810/Algorithm-analyzer" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -1033,7 +1512,7 @@
 
             <li class="project-item active reveal stagger-4" data-filter-item data-category="web development">
               <a href="https://github.com/Harshu0810/Weather-fetch-colab" target="_blank">
-                <figure class="project-img">
+                <div class="card-glare"></div><figure class="project-img">
                   <div class="project-item-icon-box">
                     <ion-icon name="eye-outline"></ion-icon>
                   </div>
@@ -1055,7 +1534,7 @@
       <article class="contact" data-page="contact">
 
         <header>
-          <h2 class="h2 article-title">Contact</h2>
+          <h2 class="h2 article-title" data-split>Contact</h2>
         </header>
 
         <section class="mapbox" data-mapbox>
@@ -1099,6 +1578,5 @@
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <script src="myportfolio.js"></script>
-
 </body>
 </html>
