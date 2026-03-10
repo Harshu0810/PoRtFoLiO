@@ -675,3 +675,125 @@ navLinks.forEach(link => {
     });
   });
 });
+
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE ANIMATION ENGINE — About · Resume · Contact
+══════════════════════════════════════════════════════════════ */
+
+/* ── Per-element IntersectionObserver (threshold .15) ── */
+const pageAnimObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      pageAnimObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -20px 0px' });
+
+function observePageElements() {
+  const sel = [
+    '.service-item',
+    '.tools-category',
+    '.timeline-item',
+    '.skills-item',
+    '.cert-item',
+    '.content-card',
+  ].join(',');
+  document.querySelectorAll(sel).forEach(el => {
+    // reset then re-observe so re-entering a page replays
+    el.classList.remove('visible');
+    pageAnimObs.observe(el);
+  });
+}
+
+/* ── Inject shimmer layers into service cards + form button ── */
+function injectShimmerLayers() {
+  document.querySelectorAll('.service-item').forEach(el => {
+    if (!el.querySelector('.shimmer-layer')) {
+      const s = document.createElement('span');
+      s.className = 'shimmer-layer';
+      el.appendChild(s);
+    }
+  });
+  const btn = document.querySelector('.form-btn');
+  if (btn && !btn.querySelector('.shimmer-btn')) {
+    const s = document.createElement('span');
+    s.className = 'shimmer-btn';
+    btn.appendChild(s);
+  }
+}
+
+/* ── Stagger article-title ::after reset so underline re-draws ──
+   We force a reflow by toggling a class so CSS animation restarts  */
+function resetArticleTitleAnimation(page) {
+  const title = document.querySelector(`[data-page="${page}"] .article-title`);
+  if (!title) return;
+  title.classList.remove('title-anim-reset');
+  void title.offsetWidth;
+  title.classList.add('title-anim-reset');
+}
+
+/* ── Number counter for stat boxes (if any are shown) ── */
+function reinitCounters() {
+  document.querySelectorAll('[data-count]:not(.counted)').forEach(el => {
+    const end = parseFloat(el.dataset.count);
+    const dec = el.dataset.dec ? +el.dataset.dec :
+                (el.dataset.count.includes('.') ? el.dataset.count.split('.')[1].length : 0);
+    const suf = el.dataset.suffix || el.dataset.suf || '';
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / 1400, 1);
+      const ease = 1 - Math.pow(1 - t, 4);
+      el.textContent = (end * ease).toFixed(dec) + suf;
+      if (t < 1) requestAnimationFrame(tick);
+      else { el.textContent = end.toFixed(dec) + suf; el.classList.add('counted'); }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ── Full init: run on every page switch ── */
+function initPageAnimations(pageName) {
+  injectShimmerLayers();
+  observePageElements();
+  reinitCounters();
+
+  /* Contact page: animate form fields by re-triggering the animation
+     by cloning + reinserting (forces keyframe restart without changing HTML) */
+  if (pageName === 'contact') {
+    const fields = document.querySelectorAll(
+      '.contact.active .input-wrapper .form-input, .contact.active textarea.form-input, .contact.active .form-btn, .contact.active .form-title'
+    );
+    fields.forEach(el => {
+      const clone = el.cloneNode(true);
+      el.replaceWith(clone);
+    });
+    /* Re-bind form validation after clone */
+    const form2    = document.querySelector('[data-form]');
+    const inputs2  = document.querySelectorAll('[data-form-input]');
+    const btn2     = document.querySelector('[data-form-btn]');
+    if (form2 && btn2) {
+      inputs2.forEach(inp => inp.addEventListener('input', () =>
+        btn2.toggleAttribute('disabled', !form2.checkValidity())
+      ));
+    }
+    injectShimmerLayers(); // re-inject after clone
+  }
+}
+
+/* ── Hook into navigation — append to existing nav handler ── */
+const _origNavLinks = document.querySelectorAll('[data-nav-link]');
+_origNavLinks.forEach(link => {
+  link.addEventListener('click', function () {
+    const target = this.innerHTML.trim().toLowerCase();
+    // slight delay so active class is applied first
+    setTimeout(() => initPageAnimations(target), 120);
+  });
+});
+
+/* ── Run on initial page load for the default active page ── */
+(function () {
+  const activePage = document.querySelector('[data-page].active');
+  if (activePage) initPageAnimations(activePage.dataset.page);
+})();
