@@ -8,10 +8,10 @@
 /* ── LOADER ── */
 // Script runs after DOM — 'load' may have already fired, so check readyState
 function dismissLoader() {
-  const loader = document.getElementById('loaderScreen');
+  const loader = document.getElementById('preloader');
   if (!loader) return;
   setTimeout(() => {
-    loader.classList.add('hidden');
+    loader.classList.add('done');
     splitTextInit();
   }, 800);
 }
