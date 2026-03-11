@@ -839,3 +839,208 @@ _origNavLinks.forEach(link => {
     });
   }
 })();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ███  SKILL CARDS — scroll reveal + percentage counter + bar fill
+══════════════════════════════════════════════════════════════ */
+(function () {
+  function initSkillCards() {
+    const cards = document.querySelectorAll('.sk-card');
+    if (!cards.length) return;
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach((entry, _) => {
+        if (!entry.isIntersecting) return;
+        const card = entry.target;
+        const idx  = Array.from(cards).indexOf(card);
+
+        setTimeout(() => {
+          card.classList.add('sk-visible');
+
+          // Animate percentage counter
+          const numEl  = card.querySelector('.sk-pct-num');
+          const target = numEl ? parseInt(numEl.dataset.target, 10) : 0;
+          if (numEl) {
+            const start = performance.now();
+            const dur   = 1300;
+            function tick(now) {
+              const t    = Math.min((now - start) / dur, 1);
+              const ease = 1 - Math.pow(1 - t, 3);
+              numEl.textContent = Math.round(target * ease);
+              if (t < 1) requestAnimationFrame(tick);
+              else numEl.textContent = target;
+            }
+            requestAnimationFrame(tick);
+          }
+
+          // Animate bar fill
+          const fill = card.querySelector('.sk-bar-fill');
+          if (fill) {
+            const pct = fill.dataset.pct || '0';
+            setTimeout(() => {
+              fill.style.width = pct + '%';
+              fill.classList.add('sk-filled');
+            }, 80);
+          }
+
+        }, idx * 100); // stagger each card
+
+        obs.unobserve(card);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    cards.forEach(c => obs.observe(c));
+  }
+
+  // Run immediately + re-run when Resume tab activated
+  initSkillCards();
+  document.querySelectorAll('[data-nav-link]').forEach(link => {
+    link.addEventListener('click', () => setTimeout(initSkillCards, 200));
+  });
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ███  3D FLIP CERT CARDS — mobile tap toggle
+══════════════════════════════════════════════════════════════ */
+(function () {
+  document.querySelectorAll('.cert-flip').forEach(card => {
+    card.addEventListener('click', () => {
+      // Only toggle on touch / no-hover devices
+      if (window.matchMedia('(hover:none)').matches) {
+        card.classList.toggle('flipped');
+      }
+    });
+  });
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ███  ABOUT TEXT — fade-up paragraphs line by line
+══════════════════════════════════════════════════════════════ */
+(function () {
+  const abSection = document.querySelector('.about-text');
+  if (!abSection) return;
+
+  const paras = abSection.querySelectorAll('p');
+  if (!paras.length) return;
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      paras.forEach((p, i) => {
+        setTimeout(() => p.classList.add('ab-visible'), i * 140);
+      });
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.1 });
+  obs.observe(abSection);
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ███  AVATAR — 3D parallax tilt tracking mouse across page
+══════════════════════════════════════════════════════════════ */
+(function () {
+  const avatar = document.querySelector('.avatar-box');
+  if (!avatar) return;
+  if (window.matchMedia('(hover:none)').matches) return;
+
+  document.addEventListener('mousemove', e => {
+    const cx = window.innerWidth  / 2;
+    const cy = window.innerHeight / 2;
+    const dx = (e.clientX - cx) / cx;   // −1 to +1
+    const dy = (e.clientY - cy) / cy;
+    const rx = dy * -10;   // tilt X
+    const ry = dx *  10;   // tilt Y
+    avatar.style.transform = `perspective(600px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(${Math.sin(Date.now()/2000)*4}px)`;
+  });
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ███  MAGNETIC BUTTONS — cursor follow
+══════════════════════════════════════════════════════════════ */
+(function () {
+  const STRENGTH = 0.32;
+  const selectors = ['.pf-btn-primary', '.ct-send-btn', '.pf-cta-btn', '.cert-view-btn'];
+  const btns = document.querySelectorAll(selectors.join(','));
+
+  btns.forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const r  = btn.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width  / 2);
+      const dy = e.clientY - (r.top  + r.height / 2);
+      btn.style.transform = `translate(${dx * STRENGTH}px, ${dy * STRENGTH}px)`;
+      btn.style.transition = 'transform .1s ease';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform  = 'translate(0,0)';
+      btn.style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
+    });
+  });
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ███  SERVICE CARDS — stagger pop-in on scroll
+══════════════════════════════════════════════════════════════ */
+(function () {
+  const items = document.querySelectorAll('.service-item');
+  if (!items.length) return;
+
+  // Pre-hide already-visible class so they animate in
+  items.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px) scale(0.97)';
+    el.style.transition = '';
+  });
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el  = e.target;
+      const idx = Array.from(items).indexOf(el);
+      setTimeout(() => {
+        el.style.transition = 'opacity .6s cubic-bezier(.22,1,.36,1), transform .6s cubic-bezier(.22,1,.36,1), box-shadow .3s ease';
+        el.style.opacity    = '1';
+        el.style.transform  = 'translateY(0) scale(1)';
+      }, idx * 90);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.15 });
+
+  items.forEach(el => obs.observe(el));
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ███  TOOLS CATEGORIES — stagger pop-in on scroll
+══════════════════════════════════════════════════════════════ */
+(function () {
+  const cats = document.querySelectorAll('.tools-category');
+  if (!cats.length) return;
+
+  cats.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'scale(0.95) translateY(18px)';
+    el.style.transition = '';
+  });
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el  = e.target;
+      const idx = Array.from(cats).indexOf(el);
+      setTimeout(() => {
+        el.style.transition = 'opacity .55s ease, transform .55s cubic-bezier(.22,1,.36,1), box-shadow .3s ease';
+        el.style.opacity    = '1';
+        el.style.transform  = 'scale(1) translateY(0)';
+      }, idx * 80);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.1 });
+
+  cats.forEach(el => obs.observe(el));
+})();
