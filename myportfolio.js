@@ -50,46 +50,14 @@
   `;
 })();
 
-/* ── Animated progress counter in preloader ── */
-(function () {
-  const fill = document.getElementById('plFill');
-  const pct  = document.getElementById('plPct');
-  if (!fill || !pct) return;
-  let val = 0;
-  const timer = setInterval(() => {
-    val += Math.random() * 18 + 4;
-    if (val >= 100) { val = 100; clearInterval(timer); }
-    fill.style.width = val + '%';
-    pct.textContent  = Math.floor(val) + '%';
-  }, 120);
-})();
-
 function dismissLoader() {
-  const loader     = document.getElementById('preloader');
-  const enterEl    = document.getElementById('pageEnter');
-  const sidebar    = document.querySelector('.sidebar');
-  const mainCont   = document.querySelector('.main-content');
+  const loader = document.getElementById('preloader');
   if (!loader) return;
-
   setTimeout(() => {
-    /* 1. Preloader curtains split open */
     loader.classList.add('done');
-
-    /* 2. Vertical strips peel down off-screen */
-    setTimeout(() => {
-      if (enterEl) enterEl.classList.add('gone');
-    }, 200);
-
-    /* 3. Sidebar + main content fade-slide in */
-    setTimeout(() => {
-      if (sidebar)  sidebar.classList.add('entered');
-      if (mainCont) mainCont.classList.add('entered');
-      splitTextInit();
-      initRevealObserver();
-      initAboutStats();
-    }, 600);
-
-  }, 1600);
+    splitTextInit();
+    initRevealObserver();
+  }, 1600);   // slightly longer so ring completes before exit
 }
 if (document.readyState === 'complete') {
   dismissLoader();
@@ -832,80 +800,26 @@ _origNavLinks.forEach(link => {
 
 
 /* ════════════════════════════════════════════════════════
-   ABOUT STAT STRIP — counter + bar animation
-════════════════════════════════════════════════════════ */
-function initAboutStats() {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      e.target.querySelectorAll('.ast-item').forEach(item => {
-        item.classList.add('ast-in');
-      });
-      /* run counters */
-      e.target.querySelectorAll('[data-count]').forEach(el => {
-        const end = parseFloat(el.dataset.count);
-        const dec = el.dataset.dec ? +el.dataset.dec : 0;
-        const suf = el.dataset.suffix || '';
-        const dur = 1400;
-        const start = performance.now();
-        function tick(now) {
-          const t    = Math.min((now - start) / dur, 1);
-          const ease = 1 - Math.pow(1 - t, 3);
-          el.textContent = (end * ease).toFixed(dec) + suf;
-          if (t < 1) requestAnimationFrame(tick);
-          else el.textContent = end.toFixed(dec) + suf;
-        }
-        requestAnimationFrame(tick);
-      });
-      obs.unobserve(e.target);
-    });
-  }, { threshold: 0.3 });
-
-  const strip = document.getElementById('aboutStats');
-  if (strip) obs.observe(strip);
-}
-initAboutStats();
-window._initAboutStats = initAboutStats;
-
-
-/* ════════════════════════════════════════════════════════
-   ABOUT HEADER LINE — trigger on scroll
+   CONTACT PAGE — floating labels + send particles + success
 ════════════════════════════════════════════════════════ */
 (function () {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.3 });
-  document.querySelectorAll('.about-header-anim').forEach(el => obs.observe(el));
-})();
-
-
-/* ════════════════════════════════════════════════════════
-   CONTACT: floating label fix + send button particles + success
-════════════════════════════════════════════════════════ */
-(function () {
-  /* Fix: placeholder=" " is needed for :not(:placeholder-shown) to work */
+  /* ensure placeholder=" " so :not(:placeholder-shown) works */
   document.querySelectorAll('.ct-input').forEach(inp => {
     if (!inp.getAttribute('placeholder')) inp.setAttribute('placeholder', ' ');
   });
 
-  /* Send button particle burst */
-  const sendBtn = document.querySelector('.ct-send-btn');
+  /* Send button particle burst + success message */
+  const sendBtn       = document.querySelector('.ct-send-btn');
   const particlesWrap = document.getElementById('ctBtnParticles');
-  const successEl = document.getElementById('ctSuccess');
+  const successEl     = document.getElementById('ctSuccess');
 
   if (sendBtn) {
-    sendBtn.addEventListener('click', function (e) {
+    sendBtn.addEventListener('click', function () {
       if (sendBtn.disabled) return;
-      /* burst particles */
       if (particlesWrap) {
         particlesWrap.innerHTML = '';
         for (let i = 0; i < 16; i++) {
-          const p = document.createElement('span');
+          const p     = document.createElement('span');
           p.className = 'ct-particle';
           const angle = (i / 16) * Math.PI * 2;
           const dist  = 40 + Math.random() * 40;
@@ -917,76 +831,11 @@ window._initAboutStats = initAboutStats;
           setTimeout(() => p.remove(), 900);
         }
       }
-      /* show success */
       setTimeout(() => {
         if (successEl) successEl.classList.add('show');
-        if (sendBtn)   sendBtn.disabled = true;
+        sendBtn.disabled = true;
         setTimeout(() => { if (successEl) successEl.classList.remove('show'); }, 4000);
       }, 600);
     });
   }
-})();
-
-
-/* ════════════════════════════════════════════════════════
-   TOOLS GRID — wave tag reveal
-════════════════════════════════════════════════════════ */
-(function () {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.2 });
-  document.querySelectorAll('.tools-category').forEach(el => obs.observe(el));
-})();
-
-
-/* ════════════════════════════════════════════════════════
-   ABOUT TEXT — paragraph fade lines
-════════════════════════════════════════════════════════ */
-(function () {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  const abt = document.getElementById('aboutTextSection');
-  if (abt) obs.observe(abt);
-})();
-
-
-/* ════════════════════════════════════════════════════════
-   PAGE TRANSITION — re-run about stats on page switch
-════════════════════════════════════════════════════════ */
-(function () {
-  const navLinks2 = document.querySelectorAll('[data-nav-link]');
-  navLinks2.forEach(link => {
-    link.addEventListener('click', function () {
-      const target = this.innerHTML.trim().toLowerCase();
-      setTimeout(() => {
-        if (target === 'about' && window._initAboutStats) window._initAboutStats();
-        /* re-trigger tools wave */
-        document.querySelectorAll('.tools-category').forEach(el => {
-          el.classList.remove('visible');
-          setTimeout(() => el.classList.add('visible'), 200);
-        });
-        /* re-trigger contact reveals */
-        if (target === 'contact') {
-          document.querySelectorAll('.ct-reveal').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            void el.offsetWidth;
-            el.style.opacity = '';
-            el.style.transform = '';
-          });
-        }
-      }, 150);
-    });
-  });
 })();
