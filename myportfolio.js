@@ -315,7 +315,9 @@ initRevealObserver();
 /* ══════════════════════════════════════════════════════════════
    SKILL BARS — FIX: --target-width matches CSS variable name
 ══════════════════════════════════════════════════════════════ */
+/* ── NEW SKILL BARS — sk-bar-fill + live counter ── */
 function initSkillBars() {
+  // legacy fill support
   document.querySelectorAll('.skill-progress-fill').forEach(fill => {
     if (!fill.dataset.target) {
       const m = (fill.getAttribute('style') || '').match(/width:\s*([\d.]+%)/);
@@ -325,19 +327,46 @@ function initSkillBars() {
     fill.classList.remove('animated');
   });
 
+  // new sk-bar-fill cards
+  document.querySelectorAll('.sk-bar-fill').forEach(bar => {
+    bar.classList.remove('anim');
+    bar.style.setProperty('--tw', bar.dataset.target || '0%');
+  });
+
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
-      e.target.querySelectorAll('.skill-progress-fill').forEach((fill, i) => {
-        setTimeout(() => {
-          fill.style.setProperty('--target-width', fill.dataset.target || '0%');
-          fill.classList.add('animated');
-        }, i * 150);
-      });
-      obs.unobserve(e.target);
-    });
-  }, { threshold: 0.25 });
+      const card = e.target;
 
+      // animate sk-bar-fill bars
+      card.querySelectorAll('.sk-bar-fill').forEach((bar, i) => {
+        setTimeout(() => bar.classList.add('anim'), i * 120);
+      });
+
+      // animate live counters
+      card.querySelectorAll('.sk-counter').forEach((el, i) => {
+        const target = +el.dataset.to;
+        const start  = performance.now();
+        const dur    = 1300 + i * 120;
+        setTimeout(() => {
+          function tick(now) {
+            const t    = Math.min((now - start) / dur, 1);
+            const ease = 1 - Math.pow(1 - t, 3);
+            el.textContent = Math.round(target * ease);
+            if (t < 1) requestAnimationFrame(tick);
+            else el.textContent = target;
+          }
+          requestAnimationFrame(tick);
+        }, i * 120);
+      });
+
+      obs.unobserve(card);
+    });
+  }, { threshold: 0.3 });
+
+  // observe each sk-card individually for stagger
+  document.querySelectorAll('.sk-card').forEach(card => obs.observe(card));
+  // legacy
   document.querySelectorAll('.skills-list').forEach(el => obs.observe(el));
 }
 initSkillBars();
@@ -797,3 +826,123 @@ _origNavLinks.forEach(link => {
   const activePage = document.querySelector('[data-page].active');
   if (activePage) initPageAnimations(activePage.dataset.page);
 })();
+
+
+/* ════════════════════════════════════════════════════════════
+   EXTRA ANIMATIONS — appended
+════════════════════════════════════════════════════════════ */
+
+/* ── Cert flip cards: touch support ── */
+document.querySelectorAll('.cert-flip').forEach(card => {
+  card.addEventListener('click', () => card.classList.toggle('flipped'));
+});
+
+/* ── Avatar parallax tilt on mousemove ── */
+(function () {
+  const avatar = document.querySelector('.avatar-box');
+  if (!avatar) return;
+  document.addEventListener('mousemove', e => {
+    const rx = ((e.clientY / window.innerHeight) - 0.5) * -10;
+    const ry = ((e.clientX / window.innerWidth)  - 0.5) *  10;
+    avatar.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-8px)`;
+  });
+  document.addEventListener('mouseleave', () => {
+    avatar.style.transform = '';
+  });
+})();
+
+/* ── About text observer (line-by-line fade up) ── */
+(function () {
+  const aboutText = document.querySelector('.about-text');
+  if (!aboutText) return;
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  obs.observe(aboutText);
+})();
+
+/* ── Skill card micro-interaction: bar glow follows cursor ── */
+document.querySelectorAll('.sk-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const x  = ((e.clientX - r.left) / r.width)  * 100;
+    const y  = ((e.clientY - r.top)  / r.height) * 100;
+    card.style.setProperty('--mx', x + '%');
+    card.style.setProperty('--my', y + '%');
+  });
+});
+
+/* ── Stagger-reveal cert flip cards on scroll ── */
+(function () {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.cert-flip').forEach(el => obs.observe(el));
+})();
+
+/* ── Timeline items: slide in from left on scroll ── */
+(function () {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateX(0)';
+        }, 0);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.timeline-item').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-20px)';
+    el.style.transition = `opacity .6s ease ${i * 0.1}s, transform .6s cubic-bezier(.22,1,.36,1) ${i * 0.1}s`;
+    obs.observe(el);
+  });
+})();
+
+/* ── Service items: scale-up pop-in ── */
+(function () {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'scale(1) translateY(0)';
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.service-item').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'scale(0.92) translateY(16px)';
+    el.style.transition = `opacity .5s ease ${i * 0.08}s, transform .5s cubic-bezier(.22,1,.36,1) ${i * 0.08}s`;
+    obs.observe(el);
+  });
+})();
+
+/* ── Magnetic effect on cert-view-btn and pf-cta-btn ── */
+document.querySelectorAll('.cert-view-btn, .pf-cta-btn, .pf-btn-primary').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r  = el.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width  / 2)) * 0.3;
+    const dy = (e.clientY - (r.top  + r.height / 2)) * 0.3;
+    el.style.transform = `translate(${dx}px,${dy}px)`;
+  });
+  el.addEventListener('mouseleave', () => {
+    el.style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
+    el.style.transform  = 'translate(0,0)';
+    setTimeout(() => el.style.transition = '', 500);
+  });
+});

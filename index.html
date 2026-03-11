@@ -906,6 +906,576 @@
       .pf-featured-body { padding: 20px 18px; }
       .pf-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
     }
+
+    /* ════════════════════════════════════════════════════════
+       SKILLS — CARD GRID
+    ════════════════════════════════════════════════════════ */
+    .sk-grid {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 0;
+    }
+    @media (min-width: 680px) { .sk-grid { grid-template-columns: 1fr 1fr; } }
+
+    .sk-card {
+      position: relative;
+      background: var(--border-gradient-onyx);
+      border-radius: 16px;
+      padding: 18px 20px 14px;
+      overflow: hidden;
+      cursor: default;
+      z-index: 1;
+      transition: transform .3s cubic-bezier(.22,1,.36,1),
+                  box-shadow .3s ease;
+    }
+    .sk-card::before {
+      content: "";
+      position: absolute; inset: 1px;
+      background: var(--bg-gradient-jet);
+      border-radius: inherit; z-index: -1;
+    }
+    /* glow border animates in on hover */
+    .sk-card::after {
+      content: "";
+      position: absolute; inset: 0;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: linear-gradient(135deg, hsl(45,100%,72%), hsl(210,80%,65%), hsl(35,100%,68%));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity .4s ease;
+      pointer-events: none;
+      background-size: 200% 200%;
+      animation: borderSpin 3s linear infinite;
+    }
+    .sk-card:hover::after { opacity: 1; }
+    .sk-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      box-shadow: 0 16px 40px hsla(0,0%,0%,.5),
+                  0 0 20px hsla(45,100%,72%,.08);
+    }
+    @keyframes borderSpin {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* header row */
+    .sk-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .sk-icon-wrap {
+      width: 38px; height: 38px;
+      min-width: 38px;
+      border-radius: 10px;
+      background: hsla(45,100%,72%,.1);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .3s, transform .3s;
+    }
+    .sk-card:hover .sk-icon-wrap {
+      background: hsla(45,100%,72%,.2);
+      transform: rotate(8deg) scale(1.1);
+    }
+    .sk-svg {
+      width: 18px; height: 18px;
+      color: hsl(45,100%,72%);
+    }
+    .sk-meta { flex: 1; }
+    .sk-name {
+      display: block;
+      font-size: var(--fs-6);
+      font-weight: 500;
+      color: var(--white-2);
+      line-height: 1.2;
+    }
+
+    /* level badges */
+    .sk-level {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+    .sk-expert  { background: hsla(45,100%,72%,.15); color: hsl(45,100%,78%); }
+    .sk-advanced{ background: hsla(200,90%,65%,.15); color: hsl(200,90%,72%); }
+    .sk-inter   { background: hsla(160,80%,55%,.15); color: hsl(160,80%,62%); }
+
+    /* percentage badge */
+    .sk-pct-badge {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: var(--text-gradient-yellow);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      min-width: 46px;
+      text-align: right;
+      line-height: 1;
+    }
+    .sk-counter {
+      display: inline;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* bar */
+    .sk-bar-track {
+      width: 100%;
+      height: 7px;
+      background: hsla(255,255%,100%,.07);
+      border-radius: 10px;
+      overflow: visible;
+      position: relative;
+    }
+    .sk-bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 10px;
+      background: linear-gradient(90deg, hsl(35,100%,58%), hsl(45,100%,72%), hsl(55,90%,75%));
+      background-size: 200% 100%;
+      position: relative;
+      transition: width 1.2s cubic-bezier(.22,1,.36,1);
+      animation: barShimmer 2.5s linear infinite;
+    }
+    .sk-bar-fill.anim { width: var(--tw); }
+    @keyframes barShimmer {
+      0%   { background-position: 0%   50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* glow blob trailing the bar */
+    .sk-bar-glow {
+      position: absolute;
+      right: -3px; top: 50%;
+      transform: translateY(-50%);
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: hsl(45,100%,72%);
+      box-shadow: 0 0 10px 4px hsla(45,100%,72%,.55),
+                  0 0 22px 8px hsla(45,100%,72%,.2);
+      opacity: 0;
+      transition: opacity .4s .8s;
+    }
+    .sk-bar-fill.anim .sk-bar-glow { opacity: 1; }
+
+    /* tiny floating particles (CSS-only, repeating radial) */
+    .sk-bar-particles {
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0%,
+        transparent 85%,
+        hsla(255,255%,100%,.12) 90%,
+        transparent 100%
+      );
+      background-size: 28px 100%;
+      animation: particleFlow 1.2s linear infinite;
+    }
+    @keyframes particleFlow {
+      from { background-position: 0 0; }
+      to   { background-position: 28px 0; }
+    }
+
+    /* sub-skill chips below bar */
+    .sk-sublabels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 10px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .4s .3s, transform .4s .3s;
+    }
+    .sk-card:hover .sk-sublabels { opacity: 1; transform: translateY(0); }
+    .sk-sublabels span {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: hsla(255,255%,100%,.06);
+      color: var(--light-gray-70);
+      transition: background .2s, color .2s;
+    }
+    .sk-card:hover .sk-sublabels span:hover {
+      background: hsla(45,100%,72%,.14);
+      color: hsl(45,100%,78%);
+    }
+
+
+    /* ════════════════════════════════════════════════════════
+       CERTIFICATIONS — 3-D FLIP CARDS
+    ════════════════════════════════════════════════════════ */
+    .cert-section { margin-top: 36px; }
+
+    .cert-deck {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 580px) { .cert-deck { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 900px) { .cert-deck { grid-template-columns: repeat(3, 1fr); } }
+
+    .cert-flip {
+      perspective: 900px;
+      height: 260px;
+    }
+    .cert-flip-inner {
+      position: relative;
+      width: 100%; height: 100%;
+      transform-style: preserve-3d;
+      transition: transform .65s cubic-bezier(.42,0,.58,1);
+      cursor: pointer;
+    }
+    .cert-flip:hover .cert-flip-inner,
+    .cert-flip.flipped .cert-flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .cert-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    /* ── FRONT FACE ── */
+    .cert-front {
+      background: var(--border-gradient-onyx);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 22px 18px 16px;
+      text-align: center;
+      position: relative;
+    }
+    .cert-front::before {
+      content: "";
+      position: absolute; inset: 1px;
+      background: var(--bg-gradient-jet);
+      border-radius: inherit; z-index: 0;
+    }
+    .cert-front > * { position: relative; z-index: 1; }
+
+    /* holographic shimmer overlay */
+    .cert-holo {
+      position: absolute; inset: 0; z-index: 2;
+      border-radius: inherit;
+      background: linear-gradient(
+        135deg,
+        transparent 0%,
+        hsla(55,100%,70%,.06) 20%,
+        transparent 25%,
+        hsla(200,100%,70%,.06) 45%,
+        transparent 50%,
+        hsla(280,100%,70%,.06) 65%,
+        transparent 70%,
+        hsla(45,100%,72%,.04) 90%,
+        transparent 100%
+      );
+      background-size: 300% 300%;
+      opacity: 0;
+      transition: opacity .4s;
+      animation: holoShift 6s ease infinite;
+      pointer-events: none;
+    }
+    .cert-flip:hover .cert-holo { opacity: 1; }
+    @keyframes holoShift {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+
+    /* ribbon */
+    .cert-ribbon {
+      position: absolute; top: 14px; right: -22px;
+      width: 90px; padding: 4px 0;
+      background: linear-gradient(90deg, hsl(45,100%,60%), hsl(35,100%,55%));
+      color: var(--smoky-black);
+      font-size: 9px; font-weight: 700; letter-spacing: .7px;
+      text-align: center;
+      transform: rotate(38deg);
+      box-shadow: 0 2px 8px hsla(0,0%,0%,.3);
+      z-index: 3;
+    }
+    .cert-ribbon-purple {
+      background: linear-gradient(90deg, hsl(260,70%,65%), hsl(280,70%,60%));
+    }
+
+    /* issuer logo pill */
+    .cert-front-top {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; margin-bottom: 4px;
+    }
+    .cert-issuer-logo {
+      font-size: 10px; font-weight: 700; letter-spacing: .8px;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .cert-issuer-logo.av  { background: hsla(200,90%,60%,.18); color: hsl(200,90%,70%); }
+    .cert-issuer-logo.acc { background: hsla(270,80%,65%,.18); color: hsl(270,80%,75%); }
+
+    .cert-status {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; color: hsl(140,70%,60%);
+    }
+    .cert-dot-pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: hsl(140,70%,55%);
+      box-shadow: 0 0 0 0 hsla(140,70%,55%,.6);
+      animation: dotPulseGreen 1.8s ease-out infinite;
+    }
+    @keyframes dotPulseGreen {
+      0%   { box-shadow: 0 0 0 0    hsla(140,70%,55%,.6); }
+      70%  { box-shadow: 0 0 0 6px  hsla(140,70%,55%,.0); }
+      100% { box-shadow: 0 0 0 0    hsla(140,70%,55%,.0); }
+    }
+
+    .cert-front-icon {
+      font-size: 2rem;
+      filter: drop-shadow(0 2px 8px hsla(45,100%,72%,.3));
+      animation: iconBob 3s ease-in-out infinite;
+    }
+    @keyframes iconBob {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-4px) scale(1.06); }
+    }
+
+    .cert-front-title {
+      font-size: var(--fs-7); font-weight: 500;
+      color: var(--white-2); line-height: 1.3;
+    }
+    .cert-front-org {
+      font-size: var(--fs-8); color: hsl(45,100%,72%);
+      font-weight: 500;
+    }
+    .cert-front-date {
+      font-size: 10px; color: var(--light-gray-70);
+    }
+    .cert-hover-hint {
+      font-size: 10px; color: hsla(255,255%,100%,.3);
+      margin-top: 4px;
+      letter-spacing: .3px;
+      transition: color .3s;
+    }
+    .cert-flip:hover .cert-hover-hint { color: hsla(45,100%,72%,.6); }
+
+    /* ── BACK FACE ── */
+    .cert-back {
+      background: linear-gradient(145deg, hsl(235,18%,13%), hsl(235,16%,10%));
+      transform: rotateY(180deg);
+      display: flex; flex-direction: column;
+      align-items: flex-start;
+      padding: 22px 20px;
+      gap: 10px;
+      border: 1.5px solid hsla(45,100%,72%,.15);
+    }
+    .cert-back-logo {
+      font-size: 10px; font-weight: 700; letter-spacing: .8px;
+      padding: 3px 10px; border-radius: 20px;
+      background: hsla(45,100%,72%,.12); color: hsl(45,100%,72%);
+      margin-bottom: 2px;
+    }
+    .cert-back-logo.acc { background: hsla(270,80%,65%,.12); color: hsl(270,80%,75%); }
+
+    .cert-back-title {
+      font-size: var(--fs-7); font-weight: 500;
+      color: var(--white-2); line-height: 1.35;
+    }
+    .cert-back-skills {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 5px;
+      flex: 1;
+    }
+    .cert-back-skills li {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; color: var(--light-gray-70);
+    }
+    .cert-back-skills li::before {
+      content: "";
+      display: inline-block;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: hsl(45,100%,68%);
+      flex-shrink: 0;
+    }
+    .cert-view-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 8px;
+      background: var(--text-gradient-yellow);
+      color: var(--smoky-black);
+      font-size: 11px; font-weight: 600;
+      text-decoration: none;
+      transition: opacity .2s, transform .2s;
+      align-self: flex-start;
+      margin-top: auto;
+    }
+    .cert-view-btn:hover { opacity: .85; transform: translateY(-2px); }
+
+
+    /* ════════════════════════════════════════════════════════
+       GLOBAL TRANSITION UPGRADES
+    ════════════════════════════════════════════════════════ */
+
+    /* ── Timeline items: alternate slide-in ── */
+    .timeline-item {
+      transition: transform .4s cubic-bezier(.22,1,.36,1),
+                  box-shadow .4s ease,
+                  opacity .4s ease;
+    }
+    .timeline-item:hover {
+      transform: translateX(4px);
+      box-shadow: -3px 0 0 hsl(45,100%,72%), 4px 0 20px hsla(0,0%,0%,.25);
+    }
+
+    /* ── Contact items in sidebar: stagger slide ── */
+    .contact-item {
+      transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s;
+    }
+    .contact-item:hover { transform: translateX(5px); }
+
+    /* ── Navbar links: underline grows from center ── */
+    .navbar-link {
+      position: relative;
+      transition: color .25s !important;
+    }
+    .navbar-link::after {
+      content: "";
+      position: absolute; bottom: -2px; left: 50%; right: 50%;
+      height: 2px;
+      background: var(--text-gradient-yellow);
+      border-radius: 2px;
+      transition: left .3s cubic-bezier(.22,1,.36,1), right .3s cubic-bezier(.22,1,.36,1);
+    }
+    .navbar-link:hover::after,
+    .navbar-link.active::after { left: 10%; right: 10%; }
+
+    /* ── Service cards: border-top reveal ── */
+    .service-item {
+      border-top: 2px solid transparent;
+      transition: transform .3s cubic-bezier(.22,1,.36,1),
+                  box-shadow .3s ease,
+                  border-color .3s ease !important;
+    }
+    .service-item:hover {
+      border-color: hsl(45,100%,72%);
+      transform: translateY(-6px) !important;
+      box-shadow: 0 18px 40px hsla(0,0%,0%,.45),
+                  0 0 0 1px hsla(45,100%,72%,.1) !important;
+    }
+
+    /* ── Tools category: scale + glow ── */
+    .tools-category {
+      transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease !important;
+    }
+    .tools-category:hover {
+      transform: scale(1.03) translateY(-3px) !important;
+      box-shadow: 0 12px 32px hsla(0,0%,0%,.4),
+                  0 0 0 1px hsla(45,100%,72%,.1) !important;
+    }
+
+    /* ── Stat boxes: lift + counter glow ── */
+    .stat-box {
+      transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease !important;
+    }
+    .stat-box:hover .stat-number { animation: numberGlow .6s ease forwards; }
+    @keyframes numberGlow {
+      0%   { filter: brightness(1); }
+      50%  { filter: brightness(1.4) drop-shadow(0 0 6px hsla(45,100%,72%,.6)); }
+      100% { filter: brightness(1); }
+    }
+
+    /* ── Social links: spring bounce ── */
+    .social-link {
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1),
+                  color .2s ease !important;
+    }
+    .social-link:hover {
+      color: hsl(45,100%,72%) !important;
+      transform: translateY(-5px) scale(1.25) !important;
+    }
+
+    /* ── Avatar: parallax tilt ── */
+    .avatar-box {
+      transition: filter .35s, transform .2s ease !important;
+      will-change: transform;
+    }
+
+    /* ── Article title shimmer underline ── */
+    .article-title::after {
+      background: linear-gradient(90deg,
+        hsl(45,100%,72%) 0%,
+        hsl(55,90%,75%)  35%,
+        hsl(35,100%,62%) 65%,
+        hsl(45,100%,72%) 100%);
+      background-size: 250% auto;
+      animation: shimmerLine 3s linear infinite;
+    }
+    @keyframes shimmerLine {
+      from { background-position: 0% center; }
+      to   { background-position: 250% center; }
+    }
+
+    /* ── Form inputs: glow focus ── */
+    .form-input {
+      transition: border-color .3s ease, box-shadow .3s ease !important;
+    }
+    .form-input:focus {
+      border-color: hsla(45,100%,72%,.55) !important;
+      box-shadow: 0 0 0 3px hsla(45,100%,72%,.1),
+                  inset 0 1px 4px hsla(0,0%,0%,.2) !important;
+    }
+
+    /* ── About section text fade-up lines ── */
+    .about-text p {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .about-text.visible p:nth-child(1) { transition-delay: .05s; opacity:1; transform:none; }
+    .about-text.visible p:nth-child(2) { transition-delay: .15s; opacity:1; transform:none; }
+    .about-text.visible p:nth-child(3) { transition-delay: .25s; opacity:1; transform:none; }
+
+    /* ── Scrollbar custom styling ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: hsl(240,2%,12%); }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(hsl(45,100%,55%), hsl(35,100%,50%));
+      border-radius: 10px;
+    }
+
+    /* ── Page wipe overlay ── */
+    #pageWipe {
+      position: fixed; inset: 0; z-index: 9990;
+      background: linear-gradient(135deg, hsl(235,18%,12%), hsl(240,2%,8%));
+      clip-path: inset(0 100% 0 0);
+      pointer-events: none;
+      transition: clip-path .38s cubic-bezier(.77,0,.18,1);
+    }
+    #pageWipe.enter { clip-path: inset(0 0% 0 0);   pointer-events: all; }
+    #pageWipe.leave { clip-path: inset(0 0% 0 100%); }
+
+    /* ── reveal-left (certs) ── */
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-28px);
+      transition: opacity .7s cubic-bezier(.22,1,.36,1),
+                  transform .7s cubic-bezier(.22,1,.36,1);
+    }
+    .reveal-left.visible { opacity: 1; transform: none; }
+
   </style>
 </head>
 
@@ -962,7 +1532,7 @@
             </div>
             <div class="contact-info">
               <p class="contact-title">Email</p>
-              <a href="mailto:harshitgoyal0810@gmail.com" class="contact-link">harshitgoyal0810&#64;gmail.com</a>
+              <a href="/cdn-cgi/l/email-protection#b6ded7c4c5dedfc2d1d9cfd7da868e8786f6d1dbd7dfda98d5d9db" class="contact-link">harshitgoyal0810&#64;gmail.com</a>
             </div>
           </li>
 
@@ -1343,111 +1913,259 @@
 
         <!-- SKILLS -->
         <section class="skill">
+          <h3 class="h3 skills-title" data-split>My Skills</h3>
 
-          <h3 class="h3 skills-title">My Skills</h3>
+          <ul class="skills-list sk-grid">
 
-          <ul class="skills-list content-card">
-
-            <li class="skills-item reveal">
-              <div class="title-wrapper">
-                <h5 class="h5">Python</h5>
-                <data value="90">90%</data>
+            <!-- Python -->
+            <li class="sk-card reveal stagger-1" data-sk-pct="90">
+              <div class="sk-header">
+                <div class="sk-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="sk-svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>
+                </div>
+                <div class="sk-meta">
+                  <span class="sk-name">Python</span>
+                  <span class="sk-level sk-expert">Expert</span>
+                </div>
+                <div class="sk-pct-badge"><span class="sk-counter" data-to="90">0</span>%</div>
               </div>
-              <div class="skill-progress-bg">
-                <div class="skill-progress-fill" style="width: 90%;" data-target="90%"></div>
+              <div class="sk-bar-track">
+                <div class="sk-bar-fill" data-target="90%">
+                  <div class="sk-bar-glow"></div>
+                  <div class="sk-bar-particles"></div>
+                </div>
+              </div>
+              <div class="sk-sublabels">
+                <span>NumPy</span><span>Pandas</span><span>OOP</span><span>Scripting</span>
               </div>
             </li>
 
-            <li class="skills-item reveal">
-              <div class="title-wrapper">
-                <h5 class="h5">Data Analysis (Pandas / NumPy / SQL)</h5>
-                <data value="85">85%</data>
+            <!-- Data Analysis -->
+            <li class="sk-card reveal stagger-2" data-sk-pct="85">
+              <div class="sk-header">
+                <div class="sk-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="sk-svg"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                </div>
+                <div class="sk-meta">
+                  <span class="sk-name">Data Analysis</span>
+                  <span class="sk-level sk-advanced">Advanced</span>
+                </div>
+                <div class="sk-pct-badge"><span class="sk-counter" data-to="85">0</span>%</div>
               </div>
-              <div class="skill-progress-bg">
-                <div class="skill-progress-fill" style="width: 85%;" data-target="85%"></div>
+              <div class="sk-bar-track">
+                <div class="sk-bar-fill" data-target="85%">
+                  <div class="sk-bar-glow"></div>
+                  <div class="sk-bar-particles"></div>
+                </div>
               </div>
-            </li>
-
-            <li class="skills-item reveal">
-              <div class="title-wrapper">
-                <h5 class="h5">Machine Learning (scikit-learn / XGBoost)</h5>
-                <data value="80">80%</data>
-              </div>
-              <div class="skill-progress-bg">
-                <div class="skill-progress-fill" style="width: 80%;" data-target="80%"></div>
-              </div>
-            </li>
-
-            <li class="skills-item reveal">
-              <div class="title-wrapper">
-                <h5 class="h5">Data Visualization (Power BI / Tableau / Matplotlib / Sweetviz)</h5>
-                <data value="78">78%</data>
-              </div>
-              <div class="skill-progress-bg">
-                <div class="skill-progress-fill" style="width: 78%;" data-target="78%"></div>
+              <div class="sk-sublabels">
+                <span>Pandas</span><span>NumPy</span><span>SQL</span><span>EDA</span>
               </div>
             </li>
 
-            <li class="skills-item reveal">
-              <div class="title-wrapper">
-                <h5 class="h5">Web Development (HTML / CSS / JS)</h5>
-                <data value="72">72%</data>
+            <!-- Machine Learning -->
+            <li class="sk-card reveal stagger-3" data-sk-pct="80">
+              <div class="sk-header">
+                <div class="sk-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="sk-svg"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+                </div>
+                <div class="sk-meta">
+                  <span class="sk-name">Machine Learning</span>
+                  <span class="sk-level sk-advanced">Advanced</span>
+                </div>
+                <div class="sk-pct-badge"><span class="sk-counter" data-to="80">0</span>%</div>
               </div>
-              <div class="skill-progress-bg">
-                <div class="skill-progress-fill" style="width: 72%;" data-target="72%"></div>
+              <div class="sk-bar-track">
+                <div class="sk-bar-fill" data-target="80%">
+                  <div class="sk-bar-glow"></div>
+                  <div class="sk-bar-particles"></div>
+                </div>
+              </div>
+              <div class="sk-sublabels">
+                <span>scikit-learn</span><span>XGBoost</span><span>RandomForest</span><span>GenAI</span>
               </div>
             </li>
 
-            <li class="skills-item reveal">
-              <div class="title-wrapper">
-                <h5 class="h5">C / C++</h5>
-                <data value="65">65%</data>
+            <!-- Data Visualization -->
+            <li class="sk-card reveal stagger-4" data-sk-pct="78">
+              <div class="sk-header">
+                <div class="sk-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="sk-svg"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <div class="sk-meta">
+                  <span class="sk-name">Data Visualization</span>
+                  <span class="sk-level sk-advanced">Advanced</span>
+                </div>
+                <div class="sk-pct-badge"><span class="sk-counter" data-to="78">0</span>%</div>
               </div>
-              <div class="skill-progress-bg">
-                <div class="skill-progress-fill" style="width: 65%;" data-target="65%"></div>
+              <div class="sk-bar-track">
+                <div class="sk-bar-fill" data-target="78%">
+                  <div class="sk-bar-glow"></div>
+                  <div class="sk-bar-particles"></div>
+                </div>
+              </div>
+              <div class="sk-sublabels">
+                <span>Power BI</span><span>Tableau</span><span>Matplotlib</span><span>Sweetviz</span>
+              </div>
+            </li>
+
+            <!-- Web Development -->
+            <li class="sk-card reveal stagger-5" data-sk-pct="72">
+              <div class="sk-header">
+                <div class="sk-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="sk-svg"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </div>
+                <div class="sk-meta">
+                  <span class="sk-name">Web Development</span>
+                  <span class="sk-level sk-inter">Intermediate</span>
+                </div>
+                <div class="sk-pct-badge"><span class="sk-counter" data-to="72">0</span>%</div>
+              </div>
+              <div class="sk-bar-track">
+                <div class="sk-bar-fill" data-target="72%">
+                  <div class="sk-bar-glow"></div>
+                  <div class="sk-bar-particles"></div>
+                </div>
+              </div>
+              <div class="sk-sublabels">
+                <span>HTML</span><span>CSS</span><span>JavaScript</span><span>React</span>
+              </div>
+            </li>
+
+            <!-- C / C++ -->
+            <li class="sk-card reveal stagger-6" data-sk-pct="65">
+              <div class="sk-header">
+                <div class="sk-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="sk-svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div class="sk-meta">
+                  <span class="sk-name">C / C++</span>
+                  <span class="sk-level sk-inter">Intermediate</span>
+                </div>
+                <div class="sk-pct-badge"><span class="sk-counter" data-to="65">0</span>%</div>
+              </div>
+              <div class="sk-bar-track">
+                <div class="sk-bar-fill" data-target="65%">
+                  <div class="sk-bar-glow"></div>
+                  <div class="sk-bar-particles"></div>
+                </div>
+              </div>
+              <div class="sk-sublabels">
+                <span>DSA</span><span>OOP</span><span>STL</span><span>Competitive</span>
               </div>
             </li>
 
           </ul>
-
         </section>
 
         <!-- CERTIFICATES -->
-        <section class="skill" style="margin-top:30px;">
+        <section class="skill cert-section" style="margin-top:36px;">
+          <h3 class="h3 skills-title" data-split>Certifications</h3>
 
-          <h3 class="h3 skills-title">Certifications</h3>
+          <ul class="cert-deck">
 
-          <ul class="cert-list">
-
-            <li class="cert-item reveal">
-              <div class="cert-badge">🎓</div>
-              <div class="cert-info">
-                <h5>Exploratory Data Analysis with Python &amp; GenAI</h5>
-                <p>Analytics Vidhya — February 2026</p>
-                <a href="https://courses.analyticsvidhya.com/certificates/jeavpf0qx0" target="_blank">View Certificate ↗</a>
+            <!-- Card 1 -->
+            <li class="cert-flip reveal-left stagger-1">
+              <div class="cert-flip-inner">
+                <!-- FRONT -->
+                <div class="cert-face cert-front">
+                  <div class="cert-holo"></div>
+                  <div class="cert-ribbon">Certified</div>
+                  <div class="cert-front-top">
+                    <div class="cert-issuer-logo av">AV</div>
+                    <div class="cert-status">
+                      <span class="cert-dot-pulse"></span> Verified
+                    </div>
+                  </div>
+                  <div class="cert-front-icon">🎓</div>
+                  <h5 class="cert-front-title">EDA with Python &amp; GenAI</h5>
+                  <p class="cert-front-org">Analytics Vidhya</p>
+                  <p class="cert-front-date">February 2026</p>
+                  <div class="cert-hover-hint">Hover to flip ↻</div>
+                </div>
+                <!-- BACK -->
+                <div class="cert-face cert-back">
+                  <div class="cert-back-logo">AV</div>
+                  <h5 class="cert-back-title">Exploratory Data Analysis with Python &amp; GenAI</h5>
+                  <ul class="cert-back-skills">
+                    <li>EDA Techniques</li><li>GenAI Integration</li>
+                    <li>Python Visualization</li><li>Sweetviz &amp; Pandas</li>
+                  </ul>
+                  <a href="https://courses.analyticsvidhya.com/certificates/jeavpf0qx0"
+                     target="_blank" class="cert-view-btn">
+                    View Certificate ↗
+                  </a>
+                </div>
               </div>
             </li>
 
-            <li class="cert-item reveal">
-              <div class="cert-badge">🤖</div>
-              <div class="cert-info">
-                <h5>Building Data Analyst AI Agent</h5>
-                <p>Analytics Vidhya — February 2026</p>
-                <a href="https://courses.analyticsvidhya.com/certificates/6y3o4utfze" target="_blank">View Certificate ↗</a>
+            <!-- Card 2 -->
+            <li class="cert-flip reveal stagger-2">
+              <div class="cert-flip-inner">
+                <div class="cert-face cert-front">
+                  <div class="cert-holo"></div>
+                  <div class="cert-ribbon">Certified</div>
+                  <div class="cert-front-top">
+                    <div class="cert-issuer-logo av">AV</div>
+                    <div class="cert-status">
+                      <span class="cert-dot-pulse"></span> Verified
+                    </div>
+                  </div>
+                  <div class="cert-front-icon">🤖</div>
+                  <h5 class="cert-front-title">Data Analyst AI Agent</h5>
+                  <p class="cert-front-org">Analytics Vidhya</p>
+                  <p class="cert-front-date">February 2026</p>
+                  <div class="cert-hover-hint">Hover to flip ↻</div>
+                </div>
+                <div class="cert-face cert-back">
+                  <div class="cert-back-logo">AV</div>
+                  <h5 class="cert-back-title">Building Data Analyst AI Agent</h5>
+                  <ul class="cert-back-skills">
+                    <li>AI Agent Architecture</li><li>LLM Tool Use</li>
+                    <li>Data Pipeline Automation</li><li>Python + APIs</li>
+                  </ul>
+                  <a href="https://courses.analyticsvidhya.com/certificates/6y3o4utfze"
+                     target="_blank" class="cert-view-btn">
+                    View Certificate ↗
+                  </a>
+                </div>
               </div>
             </li>
 
-            <li class="cert-item reveal">
-              <div class="cert-badge">📊</div>
-              <div class="cert-info">
-                <h5>Data Analytics &amp; Visualization Job Simulation</h5>
-                <p>Accenture North America via Forage — February 2025</p>
-                <a href="https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/T6kdcdKSTfg2aotxT/hzmoNKtzvAzXsEqx8_T6kdcdKSTfg2aotxT_WcP895c58fN6ej8bn_1739727938652_completion_certificate.pdf" target="_blank">View Certificate ↗</a>
+            <!-- Card 3 -->
+            <li class="cert-flip reveal-left stagger-3">
+              <div class="cert-flip-inner">
+                <div class="cert-face cert-front">
+                  <div class="cert-holo"></div>
+                  <div class="cert-ribbon cert-ribbon-purple">Simulation</div>
+                  <div class="cert-front-top">
+                    <div class="cert-issuer-logo acc">ACC</div>
+                    <div class="cert-status">
+                      <span class="cert-dot-pulse"></span> Verified
+                    </div>
+                  </div>
+                  <div class="cert-front-icon">📊</div>
+                  <h5 class="cert-front-title">Data Analytics &amp; Visualization</h5>
+                  <p class="cert-front-org">Accenture × Forage</p>
+                  <p class="cert-front-date">February 2025</p>
+                  <div class="cert-hover-hint">Hover to flip ↻</div>
+                </div>
+                <div class="cert-face cert-back">
+                  <div class="cert-back-logo acc">ACC</div>
+                  <h5 class="cert-back-title">Data Analytics &amp; Visualization Job Simulation</h5>
+                  <ul class="cert-back-skills">
+                    <li>Business Analytics</li><li>Data Cleaning</li>
+                    <li>Dashboard Design</li><li>Stakeholder Reporting</li>
+                  </ul>
+                  <a href="https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/T6kdcdKSTfg2aotxT/hzmoNKtzvAzXsEqx8_T6kdcdKSTfg2aotxT_WcP895c58fN6ej8bn_1739727938652_completion_certificate.pdf"
+                     target="_blank" class="cert-view-btn">
+                    View Certificate ↗
+                  </a>
+                </div>
               </div>
             </li>
 
           </ul>
-
         </section>
 
       </article>
