@@ -50,14 +50,46 @@
   `;
 })();
 
+/* ── Animated progress counter in preloader ── */
+(function () {
+  const fill = document.getElementById('plFill');
+  const pct  = document.getElementById('plPct');
+  if (!fill || !pct) return;
+  let val = 0;
+  const timer = setInterval(() => {
+    val += Math.random() * 18 + 4;
+    if (val >= 100) { val = 100; clearInterval(timer); }
+    fill.style.width = val + '%';
+    pct.textContent  = Math.floor(val) + '%';
+  }, 120);
+})();
+
 function dismissLoader() {
-  const loader = document.getElementById('preloader');
+  const loader     = document.getElementById('preloader');
+  const enterEl    = document.getElementById('pageEnter');
+  const sidebar    = document.querySelector('.sidebar');
+  const mainCont   = document.querySelector('.main-content');
   if (!loader) return;
+
   setTimeout(() => {
+    /* 1. Preloader curtains split open */
     loader.classList.add('done');
-    splitTextInit();
-    initRevealObserver();
-  }, 1600);   // slightly longer so ring completes before exit
+
+    /* 2. Vertical strips peel down off-screen */
+    setTimeout(() => {
+      if (enterEl) enterEl.classList.add('gone');
+    }, 200);
+
+    /* 3. Sidebar + main content fade-slide in */
+    setTimeout(() => {
+      if (sidebar)  sidebar.classList.add('entered');
+      if (mainCont) mainCont.classList.add('entered');
+      splitTextInit();
+      initRevealObserver();
+      initAboutStats();
+    }, 600);
+
+  }, 1600);
 }
 if (document.readyState === 'complete') {
   dismissLoader();
@@ -315,9 +347,7 @@ initRevealObserver();
 /* ══════════════════════════════════════════════════════════════
    SKILL BARS — FIX: --target-width matches CSS variable name
 ══════════════════════════════════════════════════════════════ */
-/* ── NEW SKILL BARS — sk-bar-fill + live counter ── */
 function initSkillBars() {
-  // legacy fill support
   document.querySelectorAll('.skill-progress-fill').forEach(fill => {
     if (!fill.dataset.target) {
       const m = (fill.getAttribute('style') || '').match(/width:\s*([\d.]+%)/);
@@ -327,46 +357,19 @@ function initSkillBars() {
     fill.classList.remove('animated');
   });
 
-  // new sk-bar-fill cards
-  document.querySelectorAll('.sk-bar-fill').forEach(bar => {
-    bar.classList.remove('anim');
-    bar.style.setProperty('--tw', bar.dataset.target || '0%');
-  });
-
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
-      const card = e.target;
-
-      // animate sk-bar-fill bars
-      card.querySelectorAll('.sk-bar-fill').forEach((bar, i) => {
-        setTimeout(() => bar.classList.add('anim'), i * 120);
-      });
-
-      // animate live counters
-      card.querySelectorAll('.sk-counter').forEach((el, i) => {
-        const target = +el.dataset.to;
-        const start  = performance.now();
-        const dur    = 1300 + i * 120;
+      e.target.querySelectorAll('.skill-progress-fill').forEach((fill, i) => {
         setTimeout(() => {
-          function tick(now) {
-            const t    = Math.min((now - start) / dur, 1);
-            const ease = 1 - Math.pow(1 - t, 3);
-            el.textContent = Math.round(target * ease);
-            if (t < 1) requestAnimationFrame(tick);
-            else el.textContent = target;
-          }
-          requestAnimationFrame(tick);
-        }, i * 120);
+          fill.style.setProperty('--target-width', fill.dataset.target || '0%');
+          fill.classList.add('animated');
+        }, i * 150);
       });
-
-      obs.unobserve(card);
+      obs.unobserve(e.target);
     });
-  }, { threshold: 0.3 });
+  }, { threshold: 0.25 });
 
-  // observe each sk-card individually for stagger
-  document.querySelectorAll('.sk-card').forEach(card => obs.observe(card));
-  // legacy
   document.querySelectorAll('.skills-list').forEach(el => obs.observe(el));
 }
 initSkillBars();
@@ -828,33 +831,107 @@ _origNavLinks.forEach(link => {
 })();
 
 
-/* ════════════════════════════════════════════════════════════
-   EXTRA ANIMATIONS — appended
-════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════
+   ABOUT STAT STRIP — counter + bar animation
+════════════════════════════════════════════════════════ */
+function initAboutStats() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.querySelectorAll('.ast-item').forEach(item => {
+        item.classList.add('ast-in');
+      });
+      /* run counters */
+      e.target.querySelectorAll('[data-count]').forEach(el => {
+        const end = parseFloat(el.dataset.count);
+        const dec = el.dataset.dec ? +el.dataset.dec : 0;
+        const suf = el.dataset.suffix || '';
+        const dur = 1400;
+        const start = performance.now();
+        function tick(now) {
+          const t    = Math.min((now - start) / dur, 1);
+          const ease = 1 - Math.pow(1 - t, 3);
+          el.textContent = (end * ease).toFixed(dec) + suf;
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = end.toFixed(dec) + suf;
+        }
+        requestAnimationFrame(tick);
+      });
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.3 });
 
-/* ── Cert flip cards: touch support ── */
-document.querySelectorAll('.cert-flip').forEach(card => {
-  card.addEventListener('click', () => card.classList.toggle('flipped'));
-});
+  const strip = document.getElementById('aboutStats');
+  if (strip) obs.observe(strip);
+}
+initAboutStats();
+window._initAboutStats = initAboutStats;
 
-/* ── Avatar parallax tilt on mousemove ── */
+
+/* ════════════════════════════════════════════════════════
+   ABOUT HEADER LINE — trigger on scroll
+════════════════════════════════════════════════════════ */
 (function () {
-  const avatar = document.querySelector('.avatar-box');
-  if (!avatar) return;
-  document.addEventListener('mousemove', e => {
-    const rx = ((e.clientY / window.innerHeight) - 0.5) * -10;
-    const ry = ((e.clientX / window.innerWidth)  - 0.5) *  10;
-    avatar.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-8px)`;
-  });
-  document.addEventListener('mouseleave', () => {
-    avatar.style.transform = '';
-  });
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.about-header-anim').forEach(el => obs.observe(el));
 })();
 
-/* ── About text observer (line-by-line fade up) ── */
+
+/* ════════════════════════════════════════════════════════
+   CONTACT: floating label fix + send button particles + success
+════════════════════════════════════════════════════════ */
 (function () {
-  const aboutText = document.querySelector('.about-text');
-  if (!aboutText) return;
+  /* Fix: placeholder=" " is needed for :not(:placeholder-shown) to work */
+  document.querySelectorAll('.ct-input').forEach(inp => {
+    if (!inp.getAttribute('placeholder')) inp.setAttribute('placeholder', ' ');
+  });
+
+  /* Send button particle burst */
+  const sendBtn = document.querySelector('.ct-send-btn');
+  const particlesWrap = document.getElementById('ctBtnParticles');
+  const successEl = document.getElementById('ctSuccess');
+
+  if (sendBtn) {
+    sendBtn.addEventListener('click', function (e) {
+      if (sendBtn.disabled) return;
+      /* burst particles */
+      if (particlesWrap) {
+        particlesWrap.innerHTML = '';
+        for (let i = 0; i < 16; i++) {
+          const p = document.createElement('span');
+          p.className = 'ct-particle';
+          const angle = (i / 16) * Math.PI * 2;
+          const dist  = 40 + Math.random() * 40;
+          p.style.setProperty('--px', Math.cos(angle) * dist + 'px');
+          p.style.setProperty('--py', Math.sin(angle) * dist + 'px');
+          p.style.left = '50%'; p.style.top = '50%';
+          p.style.animationDelay = (Math.random() * 0.12) + 's';
+          particlesWrap.appendChild(p);
+          setTimeout(() => p.remove(), 900);
+        }
+      }
+      /* show success */
+      setTimeout(() => {
+        if (successEl) successEl.classList.add('show');
+        if (sendBtn)   sendBtn.disabled = true;
+        setTimeout(() => { if (successEl) successEl.classList.remove('show'); }, 4000);
+      }, 600);
+    });
+  }
+})();
+
+
+/* ════════════════════════════════════════════════════════
+   TOOLS GRID — wave tag reveal
+════════════════════════════════════════════════════════ */
+(function () {
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -863,21 +940,13 @@ document.querySelectorAll('.cert-flip').forEach(card => {
       }
     });
   }, { threshold: 0.2 });
-  obs.observe(aboutText);
+  document.querySelectorAll('.tools-category').forEach(el => obs.observe(el));
 })();
 
-/* ── Skill card micro-interaction: bar glow follows cursor ── */
-document.querySelectorAll('.sk-card').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const r  = card.getBoundingClientRect();
-    const x  = ((e.clientX - r.left) / r.width)  * 100;
-    const y  = ((e.clientY - r.top)  / r.height) * 100;
-    card.style.setProperty('--mx', x + '%');
-    card.style.setProperty('--my', y + '%');
-  });
-});
 
-/* ── Stagger-reveal cert flip cards on scroll ── */
+/* ════════════════════════════════════════════════════════
+   ABOUT TEXT — paragraph fade lines
+════════════════════════════════════════════════════════ */
 (function () {
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -887,62 +956,37 @@ document.querySelectorAll('.sk-card').forEach(card => {
       }
     });
   }, { threshold: 0.15 });
-  document.querySelectorAll('.cert-flip').forEach(el => obs.observe(el));
+  const abt = document.getElementById('aboutTextSection');
+  if (abt) obs.observe(abt);
 })();
 
-/* ── Timeline items: slide in from left on scroll ── */
+
+/* ════════════════════════════════════════════════════════
+   PAGE TRANSITION — re-run about stats on page switch
+════════════════════════════════════════════════════════ */
 (function () {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => {
-          e.target.style.opacity = '1';
-          e.target.style.transform = 'translateX(0)';
-        }, 0);
-        obs.unobserve(e.target);
-      }
+  const navLinks2 = document.querySelectorAll('[data-nav-link]');
+  navLinks2.forEach(link => {
+    link.addEventListener('click', function () {
+      const target = this.innerHTML.trim().toLowerCase();
+      setTimeout(() => {
+        if (target === 'about' && window._initAboutStats) window._initAboutStats();
+        /* re-trigger tools wave */
+        document.querySelectorAll('.tools-category').forEach(el => {
+          el.classList.remove('visible');
+          setTimeout(() => el.classList.add('visible'), 200);
+        });
+        /* re-trigger contact reveals */
+        if (target === 'contact') {
+          document.querySelectorAll('.ct-reveal').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            void el.offsetWidth;
+            el.style.opacity = '';
+            el.style.transform = '';
+          });
+        }
+      }, 150);
     });
-  }, { threshold: 0.15 });
-
-  document.querySelectorAll('.timeline-item').forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(-20px)';
-    el.style.transition = `opacity .6s ease ${i * 0.1}s, transform .6s cubic-bezier(.22,1,.36,1) ${i * 0.1}s`;
-    obs.observe(el);
   });
 })();
-
-/* ── Service items: scale-up pop-in ── */
-(function () {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.opacity = '1';
-        e.target.style.transform = 'scale(1) translateY(0)';
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
-
-  document.querySelectorAll('.service-item').forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'scale(0.92) translateY(16px)';
-    el.style.transition = `opacity .5s ease ${i * 0.08}s, transform .5s cubic-bezier(.22,1,.36,1) ${i * 0.08}s`;
-    obs.observe(el);
-  });
-})();
-
-/* ── Magnetic effect on cert-view-btn and pf-cta-btn ── */
-document.querySelectorAll('.cert-view-btn, .pf-cta-btn, .pf-btn-primary').forEach(el => {
-  el.addEventListener('mousemove', e => {
-    const r  = el.getBoundingClientRect();
-    const dx = (e.clientX - (r.left + r.width  / 2)) * 0.3;
-    const dy = (e.clientY - (r.top  + r.height / 2)) * 0.3;
-    el.style.transform = `translate(${dx}px,${dy}px)`;
-  });
-  el.addEventListener('mouseleave', () => {
-    el.style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
-    el.style.transform  = 'translate(0,0)';
-    setTimeout(() => el.style.transition = '', 500);
-  });
-});
